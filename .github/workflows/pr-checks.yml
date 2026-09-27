@@ -1,0 +1,90 @@
+name: brain-pr-checks
+
+# Governance for appforge-brain, per appforge-ai-master-plan.md §9.1:
+#   - PERMANENT (company/, strategy/, policies/) changes need founder approval: a PR touching
+#     those paths fails unless it carries the `board-approved` label (CODEOWNERS-like check).
+#   - LEARNED (decisions/, postmortems/) is append-only: editing an existing file is rejected,
+#     except the review_outcome/status/superseded_by fields (see scripts/validate-decisions.mjs).
+#   - The DEC/PM schema validator and the INDEX generator both run and must pass; a stale
+#     INDEX.md (committed content != freshly generated content) fails the build.
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  governance-permanent-paths:
+    name: "company/ strategy/ policies/ require board-approved label"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for changes under PERMANENT paths
+        id: changed
+        run: |
+          git fetch origin "${{ github.event.pull_request.base.sha }}" --depth=1 2>/dev/null || true
+          CHANGED=$(git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" -- company strategy policies)
+          echo "$CHANGED"
+          if [ -n "$CHANGED" ]; then
+            echo "touches_permanent=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "touches_permanent=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Require board-approved label
+        if: steps.changed.outputs.touches_permanent == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = context.payload.pull_request.labels.map(l => l.name);
+            if (!labels.includes('board-approved')) {
+              core.setFailed(
+                'This PR touches company/, strategy/ or policies/ (PERMANENT knowledge per §9.1) ' +
+                'but does not carry the "board-approved" label. Get founder approval and add the ' +
+                'label, or move the change out of those folders.'
+              );
+            } else {
+              core.info('board-approved label present — PERMANENT path change allowed.');
+            }
+
+  append-only-check:
+    name: "decisions/ postmortems/ are append-only"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Run append-only check
+        run: node scripts/validate-decisions.mjs append-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}"
+
+  schema-and-index:
+    name: "DEC/PM schema validation + INDEX freshness"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Validate DEC/PM frontmatter against schemas
+        run: node scripts/validate-decisions.mjs schema
+
+      - name: Check generated INDEX.md files are up to date
+        run: node scripts/generate-index.mjs --check

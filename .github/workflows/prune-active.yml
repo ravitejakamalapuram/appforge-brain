@@ -1,0 +1,86 @@
+name: prune-active
+
+# TEMPORARY (§9.1): _active/ auto-expires. Runs on a schedule (not on every push, since it's a
+# maintenance sweep, not a PR gate): computes which _active/ files are 30+ days old
+# (scripts/prune-active.mjs, unit-tested in scripts/tests/prune-active.test.mjs), opens one
+# GitHub issue per expired file asking whether it should be promoted before it's gone, deletes
+# the expired files, and commits the deletion straight to main.
+
+on:
+  schedule:
+    - cron: "0 13 * * 1" # every Monday 13:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Compute expired _active/ files
+        id: expired
+        run: node scripts/prune-active.mjs list --json > /tmp/prune-result.json
+
+      - name: Open a promotion-check issue and delete each expired file
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          COUNT=$(jq '.data.expired | length' /tmp/prune-result.json)
+          echo "Expired files: $COUNT"
+          if [ "$COUNT" -eq 0 ]; then
+            echo "Nothing to prune."
+            exit 0
+          fi
+
+          jq -c '.data.expired[]' /tmp/prune-result.json | while read -r entry; do
+            FPATH=$(echo "$entry" | jq -r '.path')
+            CREATED=$(echo "$entry" | jq -r '.created')
+            AGE=$(echo "$entry" | jq -r '.ageDays')
+
+            BODY_FILE=$(mktemp)
+            {
+              echo "\`$FPATH\` was created on $CREATED ($AGE days ago) and has just been auto-deleted"
+              echo "by the _active/ 30-day expiry policy (appforge-ai-master-plan.md §9.1)."
+              echo
+              echo "If this should be durable knowledge, promote its content into \`decisions/\`,"
+              echo "\`postmortems/\`, \`playbooks/\` or the relevant \`products/<id>/history.md\` in a"
+              echo "follow-up PR, then close this issue. Otherwise, close it as not needed."
+              echo
+              echo "<details><summary>Deleted content</summary>"
+              echo
+              echo '```markdown'
+              git show "HEAD:$FPATH" || echo "(could not read original content)"
+              echo '```'
+              echo "</details>"
+            } > "$BODY_FILE"
+
+            gh issue create \
+              --title "_active/ expired: should $FPATH be promoted?" \
+              --body-file "$BODY_FILE" \
+              --label "brain-active-expiry"
+
+            git rm -q "$FPATH"
+          done
+
+          git config user.name "appforge-brain-bot"
+          git config user.email "actions@users.noreply.github.com"
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: prune _active/ files older than 30 days
+
+One issue opened per deleted file to confirm whether it needed promotion first."
+            git push
+          fi

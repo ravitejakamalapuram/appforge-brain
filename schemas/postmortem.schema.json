@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://appforge-brain/schemas/postmortem.schema.json",
+  "title": "Postmortem frontmatter (PM-xxxx)",
+  "description": "Frontmatter shape for postmortems/PM-xxxx-*.md, per appforge-ai-master-plan.md §26. §26 lists the required *content* (what happened, expected, actual, why, missed signals, root cause 5-whys, what changes, reusable lesson, playbook to update, was relevant knowledge available but not retrieved) as required markdown sections rather than frontmatter fields (no yaml example is given for postmortems, unlike decisions) — scripts/validate-decisions.mjs checks those sections' presence directly. This schema covers the identity/lifecycle frontmatter, by symmetry with decision.schema.json.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "title", "date", "owner", "status", "playbook_to_update", "knowledge_available_not_retrieved"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^PM-[0-9]{4}$",
+      "description": "Must match the PM-xxxx in the filename."
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "date": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "owner": { "type": "string", "minLength": 1 },
+    "related_decisions": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^DEC-[0-9]{4}$" }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "superseded", "reviewed"]
+    },
+    "superseded_by": {
+      "type": "string",
+      "pattern": "^PM-[0-9]{4}$"
+    },
+    "review_outcome": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The one field (besides status/superseded_by) the append-only CI check allows editing on an existing PM file."
+    },
+    "playbook_to_update": {
+      "type": "string",
+      "minLength": 1,
+      "description": "§26: mandatory — CI fails if empty and no linked playbook PR. Must reference either a path under playbooks/ or an explicit PR (e.g. 'playbooks/chrome-release-playbook.md' or 'PR #12') or the literal 'N/A (see linked PR)' plus a linked PR reference."
+    },
+    "knowledge_available_not_retrieved": {
+      "type": "boolean",
+      "description": "§26: 'was relevant knowledge available but not retrieved (y/n)', stored as a boolean."
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional one-line summary for the generated INDEX.md."
+    }
+  }
+}

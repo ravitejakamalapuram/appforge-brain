@@ -1,0 +1,34 @@
+id: json-workbench
+name: "JSON Workbench"
+repo: ravitejakamalapuram/json-workbench
+kind: chrome-extension
+state: PRODUCTION
+portfolio: GROWTH
+autonomy: L2
+store:
+  chrome:
+    item_id: higmlhleblpmdogjccpmjlnilpmhohal
+    published_version: "0.1.0"
+    pending_version: "0.2.0"
+    pending_status: PENDING_REVIEW
+    reviews_count: 0
+    notes: >
+      0.2.0 adds first-run sample data, a once-only review prompt, a Chrome/Edge 120+
+      compatibility note, and EchoKit cross-promo. Publisher account has a 5-published-item
+      slot cap; JSON Workbench holds one of the 5 slots (see decisions/DEC-0003).
+release:
+  pipeline: release-platform@v2
+  auth: keyless (GitHub OIDC -> GCP WIF -> release-bot SA)
+listing_gaps_as_of_2026_09_24:
+  - "Title does not use its full 45 characters"
+  - "Summary does not mention JSONL/jq"
+  - "Screenshots do not show the differentiators (DuckDB SQL panel, Diff/JSON Patch)"
+  - "No promo video"
+  - "Chrome/Edge-only note missing from the listing"
+architecture:
+  repo_layout: "React/TS side panel; packages: core, cli, vscode (already a monorepo, kept as-is per §11.2's coupled-family exception)"
+cross_promo:
+  audience_tags: [developer]
+  partners: [echokit]
+last_verified: "2026-09-24"
+source: ".claude/json-workbench-growth-brief.md, TASKS.md P4"

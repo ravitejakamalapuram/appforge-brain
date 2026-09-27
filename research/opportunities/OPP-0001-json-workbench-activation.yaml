@@ -1,0 +1,28 @@
+id: OPP-0001
+title: "JSON Workbench: low activation / near-zero reach despite being live"
+tags: [json-workbench, growth, activation, chrome-web-store]
+product_id: json-workbench
+status: running   # planned|running|stopped|completed
+summary: >
+  JSON Workbench is published on CWS (0.1.0 live, 0.2.0 pending review) but has 0 reviews and very
+  few users; the listing has real, fixable gaps and no launch has happened yet.
+context: >
+  As of 2026-09-24: item higmlhleblpmdogjccpmjlnilpmhohal, 0 reviews. Listing does not use its
+  full title length, doesn't mention JSONL/jq, has no screenshots showing the real differentiators
+  (DuckDB SQL panel, Diff/JSON Patch), no promo video, and is missing a Chrome/Edge 120+ note.
+  Launch-kit drafts already exist in `.claude/launch/` (positioning, launch posts, a 4-week plan,
+  in-product growth ideas) but were never executed.
+proposed_actions:
+  - "Listing overhaul: title, summary, description, 5 new screenshots (DuckDB SQL, jq/JSONata, Diff/JSON Patch, big-file handling, privacy/no-host-permissions)"
+  - "60-90s demo video + a written tutorial (\"Query a 500MB JSONL with SQL in your browser\")"
+  - "Distribution: Show HN, r/dataengineering, r/webdev, r/commandline, Product Hunt, awesome-lists, newsletters"
+  - "Product hooks: shareable pipeline links, \"Open in JSON Workbench\" handoff, CLI/VS Code crossover, tasteful rating prompt (already shipped in 0.2.0)"
+  - "Measurement: CWS weekly users/installs/ratings, GitHub stars, npm downloads, UTM on hub links; decide on opt-in privacy-preserving telemetry (none today)"
+scoring:
+  # §10.4: prioritization only, never authorizes.
+  reach: high        # live product, existing launch-kit drafts reduce time-to-execute
+  effort: medium      # video production is the long pole
+  confidence: medium  # differentiators are real (DuckDB/Diff) but unvalidated with real users yet
+owner: cpo
+opened: "2026-09-24"
+source: ".claude/json-workbench-growth-brief.md"

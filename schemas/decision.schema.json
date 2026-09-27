@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://appforge-brain/schemas/decision.schema.json",
+  "title": "Decision record frontmatter (DEC-xxxx)",
+  "description": "Frontmatter shape for decisions/DEC-xxxx-*.md, per appforge-ai-master-plan.md §26. `tags` and `summary` are additive fields (not in §26's yaml example) that feed the generated INDEX.md per §9.2.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title",
+    "context",
+    "question",
+    "options",
+    "decision",
+    "evidence",
+    "reason",
+    "expected_result",
+    "risk",
+    "owner",
+    "date",
+    "review_date",
+    "status"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^DEC-[0-9]{4}$",
+      "description": "Must match the DEC-xxxx in the filename."
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "context": { "type": "string", "minLength": 1 },
+    "question": { "type": "string", "minLength": 1 },
+    "options": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 2
+    },
+    "decision": { "type": "string", "minLength": 1 },
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1
+    },
+    "reason": { "type": "string", "minLength": 1 },
+    "expected_result": { "type": "string", "minLength": 1 },
+    "risk": { "type": "string", "minLength": 1 },
+    "owner": { "type": "string", "minLength": 1 },
+    "date": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "ISO date the decision was made."
+    },
+    "review_date": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "ISO date this decision should be revisited."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "superseded", "reviewed"]
+    },
+    "superseded_by": {
+      "type": "string",
+      "pattern": "^DEC-[0-9]{4}$",
+      "description": "Set when status is 'superseded'."
+    },
+    "review_outcome": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The one field (besides status/superseded_by) the append-only CI check allows editing on an existing DEC file, per §9.1's stated exception."
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional one-line summary for the generated INDEX.md; falls back to `decision` if absent."
+    }
+  }
+}

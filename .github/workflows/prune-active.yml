@@ -79,8 +79,7 @@ jobs:
           git config user.name "appforge-brain-bot"
           git config user.email "actions@users.noreply.github.com"
           if ! git diff --cached --quiet; then
-            git commit -m "chore: prune _active/ files older than 30 days
-
-One issue opened per deleted file to confirm whether it needed promotion first."
+            printf 'chore: prune _active/ files older than 30 days\n\nOne issue opened per deleted file to confirm whether it needed promotion first.\n' > /tmp/commit-msg.txt
+            git commit -F /tmp/commit-msg.txt
             git push
           fi

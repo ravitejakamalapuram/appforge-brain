@@ -7,16 +7,28 @@ right now** — usually because the fix is upstream, needs an authority the CTO 
 outranked by other work. An entry is not a to-do; it is a record that someone looked, decided, and
 can say why. Entries are closed by linking the change that resolved them, not by deletion.
 
+`Status` is one of **Open**, **Resolved** (the underlying defect is gone) or **Resolved via
+workaround** (the cost to AppForge is stopped, but the defect itself is still there — usually
+because it lives upstream). A workaround entry stays in the register, because the thing it
+describes is still true and whoever meets it next needs the reasoning, not just the mitigation.
+
 | ID | Title | Raised | Severity | Status |
 |---|---|---|---|---|
-| DEBT-0001 | Quota failures retried inside the provider's reset window | APP-45 | High | Open |
+| DEBT-0001 | Quota failures retried inside the provider's reset window | APP-45 | High | Resolved via workaround |
 | DEBT-0002 | No company-wide concurrent-run ceiling | APP-45 | Medium | Open |
+| DEBT-0003 | Quota-retry watchdog is unmonitored; its failure leaves an agent paused | APP-45 | Medium | Open |
 
 ---
 
 ## DEBT-0001 — Quota failures are retried inside the provider's reset window
 
-**Raised by** APP-45, 2026-09-28. **Severity** High. **Status** Open — upstream fix required.
+**Raised by** APP-45, 2026-09-28. **Severity** High.
+**Status** Resolved via workaround, 2026-09-28 — the upstream defect is still open.
+
+The cost to AppForge is stopped. The bug in Paperclip is not fixed and is not ours to fix; this
+entry stays open-in-substance for that reason and should not be deleted. See
+**Resolution — quota-retry watchdog** below for what actually changed, and **Residual risk** for
+what the workaround does not cover.
 
 ### What
 
@@ -45,16 +57,16 @@ A quota failure is categorically unlike the failures the scheduler is tuned for:
 a **known future time** that the provider states in the error string. Treating it as a blip is a
 category error, not a tuning problem.
 
-### Why it is not being fixed here
+### Why it is still not fixed at the source
 
 There is **no configuration surface for it.** `/api/llms/agent-configuration/claude_local.txt`
-exposes no retry, backoff, cooldown or quota field; the behaviour lives in Paperclip's runtime
-scheduler, which AppForge does not own. Nothing in `appforge-control` can express "wait until the
-reset". The honest options are an upstream change to Paperclip or a wrapper that intercepts
-scheduling — the latter would duplicate control-plane logic AppForge would then have to maintain
-against an API it does not control, which is worse debt than this entry.
+exposes no retry, backoff, cooldown or quota field (re-confirmed 2026-09-28 while building the
+workaround); the behaviour lives in Paperclip's runtime scheduler
+(`@paperclipai/server`, `services/recovery/service.js`), which AppForge does not own. Patching that
+file in place was considered and declined: it is silently overwritten by every `paperclipai update`,
+and it would put AppForge in the business of maintaining a fork of another product's control plane.
 
-### What would resolve it
+### What would resolve it upstream
 
 A `provider_quota` branch in the retry scheduler that parses the reset time from the provider error
 and schedules the retry for **after** it (or suspends the agent until then), instead of applying the
@@ -62,11 +74,61 @@ transient-failure delay. `session-burn.mjs`'s `quotaWaste()` already reports
 `retriedWithinResetWindow` and `misclassifiedAs`, so the fix is verifiable the moment it lands:
 that count should go to zero.
 
-### Interim mitigation
+This is worth an upstream bug report to Paperclip. Filing it is not yet owned by anyone.
 
-None applied. The failure is self-limiting in the sense that it stops when the window reopens, and
-it degrades throughput rather than correctness — no wrong output is produced, runs simply die. That
-is why this is debt and not an incident.
+### Resolution — quota-retry watchdog (workaround, 2026-09-28)
+
+Fixed at a boundary AppForge *does* own rather than inside Paperclip. `appforge-control`
+ships `scripts/quota-retry-watchdog.mjs`, run every 90s by LaunchAgent
+`ing.paperclip.appforge-quota-watchdog` (plist and full operator notes in
+`appforge-control/infra/macos/README.md`). Commit
+[`c3bfff3`](https://github.com/ravitejakamalapuram/appforge-control/commit/c3bfff3da88a87e9e11a0fe1dcba363f69a0ccea).
+
+Each pass reads `GET /api/companies/{id}/heartbeat-runs` and, for every newly-seen
+`provider_quota` failure, parses the reset time out of the run's own `error` text
+(`"...resets 9:50am (Asia/Calcutta)"`), **pauses that agent immediately** via
+`paperclipai agent pause` so Paperclip's scheduler cannot re-queue it early, and schedules an
+explicit `resume` + `wake` for reset-time plus a 90s clock-skew buffer. A failure logged late at
+night that prints a time already past rolls to the next calendar day in the failure's own
+timezone. `process_lost` — the only other genuinely retryable code seen in real run history — gets
+exponential backoff with full jitter rather than Paperclip's default cadence, jittered specifically
+because several agents fail together and a fixed multiplier would resynchronise their retries; the
+per-agent attempt counter resets on any run seen to succeed.
+
+Pausing is the mechanism because it is the only lever that actually preempts the scheduler.
+`pause`/`resume`/`wake` work at board/operator level and were live-smoke-tested against Analyst; an
+agent's own attempt to self-pause returns 403.
+
+**Verification did not require waiting for a real quota event.**
+`scripts/tests/quota-retry-watchdog-integration.test.mjs` drives the script against fixture run
+data and re-uses this entry's own acceptance metric — `session-burn.mjs`'s
+`quotaWaste().retriedWithinResetWindow` — showing **1** for the real bug shape observed on
+2026-09-28 (a `transient_failure` retry scheduled ~18s after a quota failure) and **0** once the
+watchdog preempts the scheduler, because the agent is paused before Paperclip's recovery service
+ever sets `scheduledRetryAt`. 72 tests pass in `appforge-control/scripts` (`npm test`), re-run and
+confirmed green at the time this entry was closed. The watchdog was also confirmed live: LaunchAgent
+loaded with exit status 0, passes logging every 90s, and state advancing in
+`appforge-control/state/quota-retry-watchdog-state.json`.
+
+### Residual risk
+
+Three things the workaround does not cover. None of them reopen the original token waste; they are
+the price of solving it outside the scheduler.
+
+1. **The watchdog is unmonitored.** Unlike its sibling LaunchAgents (`appforge-backup`,
+   `appforge-sync`), it pings no healthcheck and sends no ntfy alert, so a failure is silent. Its
+   failure mode is also worse than theirs: a crash between the pause and the scheduled resume
+   leaves an agent paused. Ordinary crashes self-heal — launchd re-runs the script every 90s and the
+   pending resume is persisted in the state file, so it fires late rather than never — but an
+   unloaded LaunchAgent, a lost or corrupted state file, or a persistent error on the resume path
+   would strand an agent with nobody told. Tracked as **DEBT-0003**.
+2. **It is reactive, not preventive.** It stops AppForge paying for retries that cannot succeed; it
+   does nothing about the burn that exhausts the session window in the first place. That is APP-76
+   (`cancelled` and `max_turns_exhausted` waste) and DEBT-0002.
+3. **It depends on the provider's error string.** The reset time is parsed out of prose
+   (`"resets 9:50am (Asia/Calcutta)"`). If Anthropic or Paperclip changes that wording, parsing
+   fails. The failure is safe rather than silent — an unparseable reset falls through instead of
+   scheduling a wrong resume — but the quota handling stops working until the parser is updated.
 
 ---
 
@@ -111,3 +173,54 @@ own. Reconciliation is itself blocked: `sync-agent-heartbeat.mjs` reports six of
 `SKIPPED — runtimeConfig.heartbeat not readable by this actor`, because the CTO key lacks
 `agents:configure` and granting permissions is forbidden to the CTO (AGENTS.md § Forbidden).
 Unblocking needs a board grant.
+
+---
+
+## DEBT-0003 — The quota-retry watchdog is unmonitored, and its failure leaves an agent paused
+
+**Raised by** APP-45, 2026-09-28. **Severity** Medium. **Status** Open.
+
+### What
+
+`ing.paperclip.appforge-quota-watchdog` (the DEBT-0001 workaround) is the only one of AppForge's
+three LaunchAgents with no liveness signal. `backup.sh` and `sync.sh` both ping healthchecks.io on
+success and push an ntfy alert on failure; the watchdog's plist carries neither
+`HEALTHCHECKS_PING_URL_*` nor `NTFY_TOPIC`, and the script emits no alert of any kind. Its only
+evidence of life is `logs/quota-retry-watchdog.log`, which nobody reads unless already suspicious.
+
+### Why it matters more here than for the sibling jobs
+
+A silent backup job means a missed backup. A silent watchdog can mean a **paused agent**, because
+pausing is exactly how the workaround preempts Paperclip's scheduler. The window between "pause the
+agent" and "resume it at the reset" is a state that only the watchdog knows how to leave.
+
+Most crashes are already survivable and this should not be overstated: the plist uses
+`StartInterval: 90` with `--once` and `KeepAlive: false`, so launchd re-runs the script every 90
+seconds regardless of how the last pass exited, and the pending resume is persisted in
+`state/quota-retry-watchdog-state.json` with a due-time filter, so it fires late rather than never.
+The uncovered cases are the ones where the script stops running or stops being able to act: the
+LaunchAgent is unloaded (a `launchctl bootout`, a failed reload after an edit), the node binary path
+in the plist stops resolving, the state file is lost or corrupted, or the resume call itself fails
+persistently. In any of those, an agent stays paused and the only symptom is that it quietly stops
+doing work — the same class of symptom APP-45 was raised to investigate.
+
+### What would resolve it
+
+Two changes, both small and both in `appforge-control`:
+
+1. A healthcheck ping per successful pass and an ntfy push on an errored pass, matching the pattern
+   `backup.sh` and `sync.sh` already use. Grace period wants to be a small multiple of 90s.
+2. A **bounded pause invariant** in the script itself: on each pass, resume any agent this watchdog
+   paused whose scheduled resume is overdue by more than some margin, even if the reason it was
+   paused is no longer understood. Failing open is correct here — a premature resume costs one
+   failed run, a missed resume costs an agent.
+
+Both are testable against the existing fixture harness in
+`scripts/tests/quota-retry-watchdog-integration.test.mjs`.
+
+### Why it is not fixed in the same change
+
+The workaround was scoped to stopping the token waste, and closing this needs a plist edit carrying
+secrets plus a LaunchAgent reload — an operational change worth making deliberately and on its own,
+not folded into the entry that certified the workaround. Recorded rather than done so that the gap
+is visible if the watchdog does go quiet before it is closed.

@@ -153,3 +153,62 @@ node scripts/session-burn.mjs --hours 30
 node scripts/session-burn.mjs --since 2026-09-28T03:34:38Z   # post-APP-29-cap-fix
 node scripts/session-burn.mjs --json                          # machine-readable
 ```
+
+## Addendum — refreshed over a full 24h window (2026-09-28T09:27Z)
+
+Re-run with `--hours 24` once a full day of history existed, because the windows above are short
+(1.46h and 30h) and the headline rate was drawn from a spike. The refreshed figures confirm the
+findings and sharpen two of them.
+
+| Window | Runs | Input tok/hr | Imputed $/hr | Productive share |
+|---|---|---|---|---|
+| 2026-09-27T09:27Z → 2026-09-28T09:27Z (24.00h) | 111 | **293K** | **$8.31** | **31.7%** |
+
+Read the 1,579K tok/hr post-cap-fix figure as the **peak** rate, not the sustained one. Sustained
+burn over a full day is 293K input tok/hr. Both matter: the peak is what trips a 5-hour session
+window inside an hour, the sustained rate is what capacity planning should use.
+
+### Per agent, 24h
+
+| Agent | Runs | Input tok | Output tok | Imputed $ | $/hr |
+|---|---|---|---|---|---|
+| CTO | 41 | 2,023K | 528K | 56.54 | 2.36 |
+| CEO | 23 | 1,646K | 511K | 50.39 | 2.10 |
+| CPO | 24 | 1,448K | 337K | 40.09 | 1.67 |
+| Analyst | 12 | 837K | 238K | 20.70 | 0.86 |
+| Growth | 7 | 588K | 131K | 16.03 | 0.67 |
+| QA | 4 | 498K | 168K | 15.68 | 0.65 |
+| Builder | 0 | — | — | — | — |
+
+The inversion holds and is not an artifact of the short window: **CTO + CEO = 54% of company burn
+over a full day** (77% including CPO), while **Builder consumed nothing at all in 24 hours.** The
+three coordination roles are the company's entire provider load. That is the single most important
+input to any capacity request, and it argues against buying capacity before asking why the builder
+is idle while the managers saturate the budget.
+
+### Waste, 24h
+
+| Outcome | Runs | Input tok | Imputed $ |
+|---|---|---|---|
+| `succeeded` | 25 | 2,196K | 63.19 |
+| `cancelled` | 22 | 1,804K | 58.00 |
+| `max_turns_exhausted` | 27 | 1,704K | 44.32 |
+| `provider_quota` | 25 | 1,035K | 25.51 |
+| `claude_auth_required` | 4 | 299K | 8.41 |
+
+**68.3% of everything the company sent to the provider bought nothing.** Revisions to the findings:
+
+- **`DEBT-0001` is larger than recorded.** Quota waste is **25 runs / 1,035K input tokens** over
+  24h, not 11 runs / 834K. **5** of those were re-queued under a non-quota reason
+  (`max_turns_continuation`, `transient_failure`) instead of waiting for the reset. The run that
+  produced this addendum was itself woken by `transient_failure_retry` after a `provider_quota`
+  failure — the defect is still live and still reproducing.
+- **Finding 3 is confirmed at scale**, and `max_turns_exhausted` joins it. `cancelled` (1,804K) and
+  `max_turns_exhausted` (1,704K) are each comparable to everything that succeeded (2,196K). Note
+  what this means for APP-29: raising the cap to 40 stopped runs dying at 10, but 27 runs still
+  exhausted 40 turns. The cap is no longer obviously wrong, but it is not obviously right either —
+  and turns spent hitting a cap are turns bought and thrown away.
+- **Concurrency is unchanged as a conclusion.** Company peak 12, per-agent peaks CEO 4 / CTO 4.
+  Still no agent near 20; still no per-agent value that bounds a company-wide budget.
+
+Regenerate with `node scripts/session-burn.mjs --hours 24`.

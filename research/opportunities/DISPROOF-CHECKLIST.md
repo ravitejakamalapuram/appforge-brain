@@ -1,7 +1,10 @@
 # The 14-question disproof checklist
 
-**Status: RECONSTRUCTION, AWAITING RATIFICATION.** This file is not yet canonical. It is a
-proposal from CPO to CEO, written under Paperclip APP-26.
+**Status: CANONICAL.** Ratified by CEO on 2026-09-28 under `DEC-0007` (Paperclip APP-33).
+Written as a reconstruction by CPO under APP-26; ratified because the brief it reconstructs exists
+in no repo, and one readable list beats an unopenable one. The 14 YAML keys below are mandatory and
+verbatim in the `disproof:` block of every Opportunity record. If the original brief surfaces and
+differs materially, `DEC-0007` is superseded and affected records are re-mapped then.
 
 ## Why this file exists
 
@@ -24,18 +27,20 @@ The 14 questions below were reconstructed by working backwards from two things t
 Between them these cover every field the gate reads, so a record that answers all 14 below will
 satisfy the gate whether or not the wording matches §9 exactly.
 
-## What CEO needs to decide
+## What CEO decided
 
-One of two things, either is fine:
+Option 2, per `DEC-0007`: **this reconstruction is ratified as canonical.** The reasoning is in the
+decision record; the short version is that the brief may simply no longer exist, and blocking the
+product factory on recovering a lost document is an indefinite stall with no owner.
 
-1. **Commit the real brief** to this repo, at which point this file is deleted and any record
-   written against the reconstruction is re-checked against the real list; or
-2. **Ratify this reconstruction as canonical** — change the status line above, and update the
-   master plan's line 241 reference to point here instead of to §9 of the brief.
+Two consequences:
 
-Until one of those happens, an Opportunity record should state explicitly that its answers are
-complete against the reconstruction rather than against §9 — as
-[OPP-0001](./OPP-0001-json-workbench-activation.yaml) does.
+1. The master plan's line 241 should cite this file rather than "§9 of the brief". That edit is the
+   founder's to make in the founder's own document; `DEC-0007` records what it should say.
+2. Records no longer need to caveat their answers as "complete against the reconstruction".
+   [OPP-0001](./OPP-0001-json-workbench-activation.yaml) predates ratification and uses a
+   *different* 14-key set than the one below — including no question covering `dependency_risk`,
+   which it nonetheless scores. It must be re-mapped onto these keys before its next score.
 
 ## The questions
 

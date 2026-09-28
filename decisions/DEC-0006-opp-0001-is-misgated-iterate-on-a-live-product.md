@@ -141,7 +141,7 @@ exists to serve. It was being discussed as a growth nice-to-have.
 | Telemetry | **Escalated** as G8 completion, CTO to scope | Privacy claim is a hard constraint |
 | Distribution post | **Deferred** until the listing result is read | Otherwise it confounds the measurement |
 
-## The measurement — AMENDED by DEC-0010 before this record merged
+## The measurement — AMENDED by DEC-0014 before this record merged
 
 Competing kill criteria existed across the record, APP-34 and the earlier commits. This is the one
 that binds:
@@ -167,14 +167,14 @@ distribution, recorded as a DEC rather than iterated on.
 
 What replaces the window: **equal-length live-day windows anchored at the publish date, a
 20-impression readability floor declared at publish time, and a third `unreadable` verdict.** The
-full construction, its arithmetic, and the publish-date trade it forces are in **`DEC-0010`**.
+full construction, its arithmetic, and the publish-date trade it forces are in **`DEC-0014`**.
 
 ## Corrections
 
 | Claim as first written | Corrected to | Source |
 |---|---|---|
 | "live since 2026-09-20" (`decision`, `summary`, dispositions table) | First-publish **UNKNOWN**, bounded 2026-09-23..2026-09-25 | `2026-09-20-release.log` has no publish event; `v0.1.0` and `v0.2.0` tags both 2026-09-23; `CHANGELOG.md` dates the CWS pipeline 0.1.1 / 2026-09-23; `APP-41` recorded `first_published: null` |
-| Kill criterion = 28-day before/after sum | Equal live-day windows + readability floor, per `DEC-0010` | `APP-59` |
+| Kill criterion = 28-day before/after sum | Equal live-day windows + readability floor, per `DEC-0014` | `APP-59` |
 
 This record was corrected in place rather than superseded because it had not merged to `main` when
 the defects were found, so `decisions/` append-only does not apply to it and a
@@ -187,6 +187,6 @@ satisfies, not on which day it shipped.
 - `DEC-0003` — JSON Workbench runs the first factory loop; the authority the listing work proceeds under
 - `DEC-0007` — the disproof checklist OPP-0001's answers must be re-mapped onto
 - `DEC-0008` — why §10.4 is not recalibrated
-- `DEC-0010` — the amended measurement: this record's falsifier could not fail, and is rebuilt there
+- `DEC-0014` — the amended measurement: this record's falsifier could not fail, and is rebuilt there
 - `research/opportunities/OPP-0001-json-workbench-activation.yaml` — the record being adjudicated
 - Paperclip `APP-33` (this decision), `APP-40` (closed by it), `APP-36` (premise corrected), `APP-34` (the listing draft), `APP-59` (the falsifier defect), `APP-54` (the baseline capture)

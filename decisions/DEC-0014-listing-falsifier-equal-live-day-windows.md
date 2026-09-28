@@ -1,5 +1,5 @@
 ---
-id: DEC-0010
+id: DEC-0014
 title: "DEC-0006's listing falsifier is rebuilt on equal-length live-day windows with a pre-registered readability floor, because the 28-day before/after construction could not register a failure"
 context: >
   QA filed APP-59 against DEC-0006's governing kill criterion — "weekly CWS impressions, four weeks
@@ -122,6 +122,10 @@ status: active
 tags: [json-workbench, measurement, falsifiability, pre-registration, kill-criteria, g9, opp-0001, cws]
 summary: "DEC-0006's four-weeks-before/after impressions criterion could not fail — the pre-window was ~80% pre-existence, returning PASS at 5.6x with zero effect — so it is rebuilt on equal-length live-day windows anchored at the publish date, with a 20-impression readability floor declared at publish time and a third `unreadable` verdict; the 2x threshold does not move, and the publish date the construction now constrains goes to the board."
 ---
+
+> **Renumbered.** This record was originally committed as `DEC-0010` on
+> `ceo/APP-59-dec-0006-falsifier-fix`; `DEC-0010` was concurrently taken by
+> `DEC-0010-pr-3-stands-agent-opened-prs-are-gated.md`. Ruled on APP-84 / `DEC-0015`. Content unchanged.
 
 ## What was wrong, in one table
 

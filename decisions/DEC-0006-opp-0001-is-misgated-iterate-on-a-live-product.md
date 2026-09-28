@@ -18,7 +18,9 @@ options:
   - "Recalibrate §10.4's weights until JSON Workbench passes."
 decision: >
   OPP-0001 is RECLASSIFIED. G0-G3 is the new-product funnel; JSON Workbench has been live on the
-  Chrome Web Store since 2026-09-20 (0.2.0 PUBLISHED), which puts it past G7. There is no MVP to
+  Chrome Web Store since 2026-09-23 at the earliest (0.2.0 PUBLISHED), which puts it past G7 — the
+  exact first-publish date is UNKNOWN and bounded to 2026-09-23..2026-09-25, corrected 2026-09-28
+  per APP-59; see Corrections below. There is no MVP to
   approve, so G3 is not proposed, not now and not at any score. OPP-0001 is routed onto the
   live-product path, where its real next gate is G9 (PMF signal, owned by Analyst, day 30 =
   2026-10-20) followed by G10 (scale/iterate/pause/kill, CEO to board).
@@ -31,7 +33,7 @@ decision: >
   releases. Telemetry is escalated separately as a G8 completion blocker, not as a new opportunity.
 evidence:
   - "§10.3's gate ladder is G0 Discovered, G1 Evidence, G2 Validated, G3 MVP approved, G4 Development, G5 QA, G6 Release candidate, G7 Human release approval, G8 Launched, G9 PMF signal, G10 Scale/iterate/pause/kill. G3's acceptance criteria are 'scope, budget (AI $ + builder weeks), kill criteria pre-registered, slot plan' — the criteria for authorising a build that has not happened."
-  - "JSON Workbench released to CWS 2026-09-20 (logs/chrome-store/2026-09-20-release.log), item higmlhleblpmdogjccpmjlnilpmhohal, 0.2.0 PUBLISHED and live since 2026-09-25. The build G3 would authorise is eight days old and already in users' hands."
+  - "JSON Workbench is live on CWS as item higmlhleblpmdogjccpmjlnilpmhohal, 0.2.0 PUBLISHED. CORRECTED 2026-09-28 (APP-59): the first-publish date is UNKNOWN, bounded to 2026-09-23..2026-09-25 — logs/chrome-store/2026-09-20-release.log carries no publish event, both git tags v0.1.0 and v0.2.0 are dated 2026-09-23, and CHANGELOG.md dates the CWS pipeline to 0.1.1 / 2026-09-23. The build G3 would authorise is days old and already in users' hands, which is the only part of this evidence the decision rests on."
   - "The mis-gating explains the symptom that triggered APP-36. §10.4 weights monetization at 15 with a missing-evidence floor of 1 because it is ranking candidate products competing for a build slot. Applied to a shipped free product it measures something nobody is deciding. The oddness CPO correctly noticed is a routing error surfacing as a scoring error."
   - "Score sensitivity, computed by CEO: on the adjudicated set (4/4/3/2/1/5/3/3/4/2 => 301 => 60.2) a one-point DOWNWARD move in any one of nine of the ten criteria flips the verdict to fail. A threshold that nine independent single-point judgements can cross is not resolving anything at this altitude."
   - "The five derivations of the same evidence: 56.6 (51bc074, pushed as PR #1), 58.2 (CEO first pass), 60.2 (CEO final), 63.2 (d9d4956), 65.2 (d51812b). Spread 8.6 points; threshold 60 sits inside it."
@@ -76,7 +78,7 @@ date: "2026-09-28"
 review_date: "2026-10-27"
 status: active
 tags: [json-workbench, opportunity-gate, g2, g8, g9, scoring, product-factory, opp-0001]
-summary: "JSON Workbench has been live since 2026-09-20, so running OPP-0001 through the G0-G3 new-product funnel was a routing error; OPP-0001 moves to the live-product path (G9 at day 30), no G3 is proposed at any score, the listing rewrite proceeds under DEC-0003 with publish gated on a board G7, and telemetry is reclassified as the unmet half of G8."
+summary: "JSON Workbench has been live since 2026-09-23 at the earliest, so running OPP-0001 through the G0-G3 new-product funnel was a routing error; OPP-0001 moves to the live-product path (G9 at day 30), no G3 is proposed at any score, the listing rewrite proceeds under DEC-0003 with publish gated on a board G7, and telemetry is reclassified as the unmet half of G8."
 ---
 
 ## The score was never going to decide this
@@ -133,13 +135,13 @@ exists to serve. It was being discussed as a growth nice-to-have.
 
 | Item | Disposition | Authority |
 |---|---|---|
-| G3 MVP approval | **Not proposed, at any score** | No MVP exists; product shipped 2026-09-20 |
+| G3 MVP approval | **Not proposed, at any score** | No MVP exists; product shipped 2026-09-23 or earlier |
 | Listing copy draft + PR | **Approved now** | DEC-0003 + Q4 O2; LOW risk, CEO work-plan authority |
 | Publishing the listing | **Board, via G7** | §10.3 G7 names "listing" in the approval diff; CEO may not trigger releases |
 | Telemetry | **Escalated** as G8 completion, CTO to scope | Privacy claim is a hard constraint |
 | Distribution post | **Deferred** until the listing result is read | Otherwise it confounds the measurement |
 
-## The measurement, settled
+## The measurement — AMENDED by DEC-0010 before this record merged
 
 Competing kill criteria existed across the record, APP-34 and the earlier commits. This is the one
 that binds:
@@ -153,10 +155,38 @@ Impressions, not installs: the hypothesis is specifically "we are invisible to t
 audience types", and impressions measure reach directly while installs conflate reach with appeal.
 "Triple installs" off a base of three users is nine users — indistinguishable from noise.
 
+**The window construction above is withdrawn.** It could not register a failure: with first-publish
+at 2026-09-23 or later, "four weeks before" is roughly 80% days on which no listing existed, so a
+28-day sum over ~5 live days against a 28-day sum over 28 live days returns "at least double" from
+the asymmetry alone — about 5.6× with the rewrite doing nothing, and still 2.8× with the rewrite
+actively halving reach. QA caught this on `APP-59`.
+
+What survives unchanged: **impressions not installs**, the **2× threshold** (which is NOT moved),
+installs as a secondary read, and the FAIL consequence — hypothesis dead, constraint is off-store
+distribution, recorded as a DEC rather than iterated on.
+
+What replaces the window: **equal-length live-day windows anchored at the publish date, a
+20-impression readability floor declared at publish time, and a third `unreadable` verdict.** The
+full construction, its arithmetic, and the publish-date trade it forces are in **`DEC-0010`**.
+
+## Corrections
+
+| Claim as first written | Corrected to | Source |
+|---|---|---|
+| "live since 2026-09-20" (`decision`, `summary`, dispositions table) | First-publish **UNKNOWN**, bounded 2026-09-23..2026-09-25 | `2026-09-20-release.log` has no publish event; `v0.1.0` and `v0.2.0` tags both 2026-09-23; `CHANGELOG.md` dates the CWS pipeline 0.1.1 / 2026-09-23; `APP-41` recorded `first_published: null` |
+| Kill criterion = 28-day before/after sum | Equal live-day windows + readability floor, per `DEC-0010` | `APP-59` |
+
+This record was corrected in place rather than superseded because it had not merged to `main` when
+the defects were found, so `decisions/` append-only does not apply to it and a
+superseded-on-arrival record would have been noise. Neither correction disturbs the decision itself:
+the reclassification turns on JSON Workbench being **past G7**, which every candidate date
+satisfies, not on which day it shipped.
+
 ## Related
 
 - `DEC-0003` — JSON Workbench runs the first factory loop; the authority the listing work proceeds under
 - `DEC-0007` — the disproof checklist OPP-0001's answers must be re-mapped onto
 - `DEC-0008` — why §10.4 is not recalibrated
+- `DEC-0010` — the amended measurement: this record's falsifier could not fail, and is rebuilt there
 - `research/opportunities/OPP-0001-json-workbench-activation.yaml` — the record being adjudicated
-- Paperclip `APP-33` (this decision), `APP-40` (closed by it), `APP-36` (premise corrected), `APP-34` (the listing draft)
+- Paperclip `APP-33` (this decision), `APP-40` (closed by it), `APP-36` (premise corrected), `APP-34` (the listing draft), `APP-59` (the falsifier defect), `APP-54` (the baseline capture)

@@ -1,0 +1,231 @@
+id: EXP-0001
+title: "JSON Workbench: CWS title + short-description keyword rewrite (discovery test)"
+tags: [json-workbench, growth, chrome-web-store, listing, discovery, copy]
+product_id: json-workbench
+status: draft # draft|awaiting_approval|running|readout|stopped
+owner: growth
+opened: "2026-09-28"
+source_issue: APP-34
+decision_ref: "DEC-0006 (CEO, 2026-09-28) approves S1; APP-31 portfolio call -> APP-34 HANDOFF: Growth"
+opportunity: research/opportunities/OPP-0001-json-workbench-activation.yaml
+summary: >
+  Two candidate listing titles and two candidate short descriptions for the live CWS item, drafted
+  to test OPP-0001 q07: that JSON Workbench is invisible on the query its audience actually types.
+  Copy only — no code, no screenshots, no permission change. NOT PUBLISHED. Needs CEO selection,
+  board approval, and a founder-side baseline before it can run.
+
+hypothesis: >
+  The binding constraint on JSON Workbench installs is discovery, and discovery is a copy problem:
+  the listing title spends 14 of an available 45 characters on the bare product name and neither
+  the title nor the short description contains "viewer", "formatter", "JSONL" or "NDJSON" — the
+  words the FormatArc/Dadroit/DEV audience (OPP-0001 E1/E2/E3) searches. Putting those words in
+  the two indexed fields should raise CWS search impressions.
+
+# ---------------------------------------------------------------------------
+# THE DRAFT COPY
+# ---------------------------------------------------------------------------
+current:
+  title: "JSON Workbench"                 # 14 chars of 45
+  short_description: "Inspect, transform, validate, diff, and query large JSON locally. Nothing leaves your browser."  # 94 of 132
+  note: >
+    The current short description is accurate and privacy-forward but leads with five verbs. It
+    contains no noun anyone searches for except "JSON", and it never says JSONL or NDJSON.
+
+title_candidates:
+  - id: T1
+    text: "JSON Workbench - Large JSON & JSONL Viewer"
+    length: 42
+    limit: 45
+    targets: ["large json viewer", "large json file", "jsonl viewer", "jsonl"]
+    rationale: >
+      RECOMMENDED. Spends the character budget on the query we can actually win. OPP-0001's
+      positioning read-through is explicit that the "pretty-print this JSON tab" job is won and
+      saturated, so the word "formatter" would put us in a query headed by a 2,000,000-user
+      listing literally named "JSON Formatter". "Viewer" is the category term we can rank in when
+      it is qualified by "large" or "JSONL", which is the one axis no incumbent serves (E1).
+      "Formatter" is carried by short-description candidate S2 instead, so both category terms are
+      still in the indexed listing text.
+  - id: T2
+    text: "JSON Workbench: Large JSON Viewer & Formatter"
+    length: 45
+    limit: 45
+    targets: ["json viewer", "json formatter", "large json"]
+    rationale: >
+      ALTERNATIVE. Uses the full 45 characters and carries both category terms in the title
+      itself, which is the most literal reading of the APP-34 handoff. Cost: it enters the
+      saturated "json formatter" query where we will not outrank the incumbents, and it drops
+      "JSONL" — the highest-intent, lowest-competition term available to us. Also sits exactly on
+      the 45-character cap with zero margin for a later tweak.
+
+short_description_candidates:
+  - id: S1
+    text: "Open large JSON, JSONL and NDJSON files in your browser - search, query with SQL, jq or JSONata, and diff. Fully local."
+    length: 119
+    limit: 132
+    targets: ["large json file", "open large json file", "jsonl", "ndjson"]
+    rationale: >
+      RECOMMENDED with T1. Leads with the job (open a large file) rather than a feature list, as
+      the handoff requires, and mirrors the phrasing of the E2 search market ("how to open a large
+      JSON file"). Pairs with T1 without repeating it word-for-word.
+  - id: S2
+    text: "A JSON viewer and formatter built for large JSON, JSONL and NDJSON files. Query with SQL, jq or JSONata. Nothing uploads."
+    length: 121
+    limit: 132
+    targets: ["json viewer", "json formatter", "large json", "jsonl", "ndjson"]
+    rationale: >
+      ALTERNATIVE, and the right pairing if T1 is chosen and the CEO still wants "formatter" in
+      the indexed text. Leads with the category nouns instead of the job, which is weaker against
+      the handoff's "lead with the large-file / JSONL job" instruction but stronger on term
+      coverage.
+
+recommended_pairing: "T1 + S1 (job-led, JSONL-weighted). T1 + S2 if 'formatter' must appear."
+
+not_keyword_stuffing: >
+  Every term in every candidate names a file format the product actually reads or a capability it
+  actually ships, each appears once, and each title still reads as a product name followed by one
+  plain-English descriptor - no repeated terms, no comma lists of synonyms, no competitor names.
+
+claim_traceability:
+  checked_against: products/json-workbench/product-facts.yaml
+  supported:
+    - "large JSON, JSONL and NDJSON files - already in the live listing description and STORE_LISTING.md"
+    - "SQL (DuckDB-WASM), jq, JSONata, diff - shipped features, in the live description"
+    - "local / nothing uploads - product-facts records no data collection; manifest requests no host permissions on default install"
+  deliberately_omitted:
+    - claim: "a specific file-size number (e.g. '100 MB' or '500 MB')"
+      why: >
+        The only size figures in the company are OPP-0001's own bench (10 MB / 244 ms, 100 MB /
+        2.29 s, 500 MB / 11.82 s), they are explicitly PARSER THROUGHPUT ONLY rather than
+        end-to-end UI, and they are not recorded in product-facts.yaml. Growth may not publish a
+        claim that is not traceable there (AGENTS.md Forbidden). If a size number is wanted in the
+        copy, CPO/CTO must first land the measured figure in product-facts.yaml as an end-to-end
+        fact.
+    - claim: "comparative claims such as 'files other viewers cannot open'"
+      why: >
+        True per the FormatArc benchmark (E1) but it is a claim about third-party products in a
+        store listing, is not traceable to product-facts.yaml, and invites a CWS policy complaint.
+        Keep it in launch posts and the landing page, not the listing.
+
+# ---------------------------------------------------------------------------
+# MEASUREMENT + PRE-REGISTERED KILL CRITERION
+# ---------------------------------------------------------------------------
+measurement:
+  instrument: "Chrome Web Store Developer Dashboard only - impressions and installs. No product telemetry required, which is the reason this is the correct first step."
+  cadence: weekly
+  window: "4 weeks after the change goes live vs. the 4 weeks immediately before"
+  required_input:
+    - id: R1
+      what: "Weekly CWS impressions and installs for the 4 weeks before the change goes live."
+      owner: founder
+      why: >
+        The CWS Developer Dashboard is credentialed; Growth must never hold or request store
+        credentials (AGENTS.md universal rule 4) and the CWS API cannot report impressions. This
+        figure must be captured from the dashboard, NOT estimated. Without it the experiment has no
+        denominator and the kill criterion cannot be evaluated.
+      status: outstanding
+  confound_to_control:
+    - >
+      OPP-0001 S3 (a DEV / r/dataengineering distribution post) must NOT run inside the 4-week
+      window, or impressions cannot be attributed to the copy change. Already company policy:
+      DEC-0006 defers S3 until S1 has been measured, on experiment-design grounds. Growth will not
+      publish a launch post before the window closes.
+    - >
+      If the title ships as part of a version bump (see publish_path below), the release itself
+      refreshes the "last updated" date, which independently affects ranking. Note it in the
+      readout; do not claim a clean copy-only attribution if a release rode along.
+
+kill_criterion:
+  authority: "DEC-0006 (CEO, 2026-09-28) — pre-registered there, and restated in APP-34."
+  governing_text: >
+    If weekly CWS impressions do not at least double within 4 weeks of the change going live, the
+    "discovery is a copy problem" hypothesis is dead and the constraint is off-store distribution.
+    Record that as a DEC and stop iterating on listing copy.
+  on_trip: >
+    Growth records the DEC (next free id is DEC-0009, once DEC-0006/0007/0008 merge) and stops all
+    further listing-copy iteration on this product. No re-draft, no second rewrite.
+  provenance_note:
+    issue: >
+      APP-34 asks for this criterion "restated verbatim from OPP-0001". It is not in OPP-0001 in
+      that form, and OPP-0001 has no `recommended_first_step` key either — the content is at
+      `recommended_scope.smallest_validated_first_step`, S1. OPP-0001's own pre-registered
+      falsifier q14(a) is quoted verbatim below and differs on three substantive points.
+    opp_0001_q14a_verbatim: >
+      (a) REACH - if weekly new installs do not at least triple within 28 days of the listing
+      rewrite plus one distribution post, the "we are invisible on the right query" theory is
+      wrong and the problem is demand, not discovery -> archive with a learning note;
+    differences: ["metric: impressions vs. new installs", "threshold: 2x vs. 3x", "treatment: copy-only vs. listing rewrite PLUS one distribution post"]
+    resolution: >
+      Already adjudicated, and Growth is not reopening it. DEC-0006's "Measurement, corrected"
+      section supersedes q14(a) explicitly and on exactly these three points: impressions rather
+      than installs, because the hypothesis is about reach and installs conflate reach with appeal;
+      doubling rather than tripling; and S3 (the distribution post) deferred so the two
+      interventions cannot confound each other. The governing text above is therefore DEC-0006's,
+      which is what APP-34 restates. The only thing left open is bookkeeping: OPP-0001 q14(a)
+      still carries the superseded text, and CPO should amend it so the opportunity record and the
+      decision record agree. That is a CPO tidy-up, not a blocker on this draft.
+
+# ---------------------------------------------------------------------------
+# HOW THIS ACTUALLY SHIPS (findings that change the plan's shape)
+# ---------------------------------------------------------------------------
+publish_path:
+  short_description:
+    field: "chrome-store/store.config.json -> shortDescription"
+    mechanism: "Listing-only edit. release-platform consumes shortDescription from store.config.json; PR CI enforces the 132-char limit."
+    needs_release: false
+  title:
+    field: "apps/extension/manifest.json -> name (currently 'JSON Workbench'), mirrored in chrome-store/store.config.json -> name"
+    mechanism: >
+      NOT a listing-only edit. release-platform's documented store.config.json keys are
+      shortDescription, description, screenshots, promoVideo, promotionalImages, privacyPolicyUrl,
+      supportUrl, websiteUrl and publisherId - `name` is not among them. The displayed CWS item
+      name comes from the packaged manifest, and the 45-character ceiling OPP-0001 cites is the
+      manifest `name` limit. Changing the title therefore requires a version bump, a rebuilt
+      package, an upload and a full store review.
+    needs_release: true
+    answers_dec_0006_risk: >
+      DEC-0006's risk section leaves this open — "a CWS metadata change may still trigger a listing
+      review; CTO/Release must confirm the review path before publish rather than assuming the 'no
+      re-review' claim in the record." This is the answer for the title specifically: it is not
+      metadata at all from the store's point of view, it is the package, so a re-review is certain
+      rather than possible. The short description is the genuinely review-free half.
+    consequence: >
+      APP-34's "no package re-review" constraint cannot hold for the title. Either (i) ship S1/S2
+      now as a listing-only edit and carry T1 on the next scheduled release, or (ii) hold both and
+      ship them together in one patch release so the 4-week window has a single clean start date.
+      Growth recommends (ii): splitting the treatment across two dates makes the impressions
+      before/after comparison unreadable, which is the one thing this experiment exists to measure.
+  dispatch_reality:
+    workflow: ".github/workflows/listing.yml in json-workbench"
+    inputs_available: ["dry_run", "targets"]
+    note: >
+      The workflow takes no approval_id input (that input belongs to the release workflow), and the
+      CWS API cannot change a listing at all. For Chrome the listing workflow only opens a
+      `store-listing` issue containing the files, the dashboard link and the exact steps including
+      "Submit for review". The field edit and the submit are a manual founder action in the
+      dashboard. The board approval gate still applies, and neither Growth nor the CEO dispatches
+      it - CTO/Release does.
+
+gates:
+  - "CEO selects the title/short-description pairing. Growth drafts; Growth does not choose and does not publish."
+  - >
+    S1 itself is already APPROVED by DEC-0006 as LOW-risk growth-cycle work under DEC-0003 — it
+    does NOT wait on a board G3, and OPP-0001 failing G2 at 58.2 does not block it. APP-34 describes
+    a board approval gate for publishing; DEC-0006 is the narrower and later ruling and is read as
+    satisfying it for these two fields, bounded to listing text on an already-published product with
+    no code, permission or data-collection change. If the CEO reads that differently, say so before
+    the PR is raised in json-workbench.
+  - >
+    CTO/Release dispatches `.github/workflows/listing.yml`; the founder completes the dashboard edit
+    and Submit for review. Never Growth, never the CEO directly.
+
+next_steps:
+  - "CEO: pick T1+S1, T1+S2 or T2+S1, and confirm the DEC-0006 reading in `gates` covers publishing these two fields."
+  - "Founder: supply R1 (4-week impressions + installs baseline) from the dashboard."
+  - "Then: a one-file PR in json-workbench (store.config.json shortDescription, plus manifest+store.config name if the title is approved), owned by Builder, reviewed by CTO."
+  - "CPO: amend OPP-0001 q14(a) to match DEC-0006 so the two records stop disagreeing."
+  - "4 weeks after go-live: joint readout with Analyst against the kill criterion."
+
+related_decisions:
+  - "DEC-0006 - the authority this work proceeds under, and the source of the pre-registered impressions criterion. Pending merge on branch ceo/DEC-0006-0008-opp-0001-g2-adjudication as of 2026-09-28."
+  - "DEC-0003 - JSON Workbench runs the first end-to-end factory loop."
+  - "DEC-0004 - $100/month cap. This draft is NORMAL tier, 150 cents."

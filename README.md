@@ -47,6 +47,30 @@ are hand-maintained.
 - `.github/workflows/pr-checks.yml` (on every PR to `main`): the `board-approved`-label gate on
   `company/`/`strategy/`/`policies/`, the append-only check on `decisions/`/`postmortems/`, the
   DEC/PM schema validator, and the INDEX-freshness check.
+
+  **All four of those are advisory checks. They go red; they do not refuse the merge.** Measured
+  read-only on 2026-09-29 (APP-134): `GET /repos/ravitejakamalapuram/appforge-brain/branches/main`
+  returns `protected: false`, `protection.enabled: false`, and
+  `protection.required_status_checks.enforcement_level: "off"` with empty `contexts`/`checks`. None
+  of these jobs is a required status check, so a merge with all of them red returns HTTP 200.
+  Rulesets are not a hidden second mechanism either: `/rulesets` and `/rules/branches/main` return
+  403 *"Upgrade to GitHub Pro or make this repository public"* on this repo, while the same
+  endpoints with the same token return `200 []` on the account's public repo `appforge-kit` — so
+  branch protection is a public-repo feature on this account's plan, unavailable here rather than
+  merely unconfigured.
+
+  The `board-approved` gate nonetheless works, and has never been bypassed, because every agent
+  stops at the red X. That is **agent discipline plus a loud signal, not server-side enforcement**
+  — the same cooperative category as the `TOOLS.md` deny lists under `DEC-0016`. Do not describe
+  any of these checks as enforced, and do not build anything that assumes a red X here stops a
+  merge. Full statement: `appforge-control/docs/containment-model.md`. Turning branch protection on
+  is a founder call about money or repo visibility, not an engineering task — see APP-123.
+
+  > The header comment inside `pr-checks.yml` still calls the label gate a "CODEOWNERS-like check",
+  > which implies enforcement it does not have. The corrected header is written and reviewed but
+  > cannot be pushed by an agent: the `appforge-agents` App has no `workflows: write` permission, so
+  > GitHub refuses any agent push that touches `.github/workflows/`. Applying it is a founder act —
+  > tracked on APP-138.
 - `.github/workflows/prune-active.yml` (weekly schedule + manual dispatch): prunes `_active/`.
 
 ## Rulings made while scaffolding (P0-07)

@@ -35,6 +35,14 @@ are hand-maintained.
   deletes/renames one.
 - `npm run generate-index` — regenerates the auto-generated `INDEX.md` files. `-- --check` (as
   used in CI) exits 1 instead of writing, if anything would change.
+- `npm run new-decision -- "<slug>"` — allocates the next free `DEC-xxxx` id and scaffolds the
+  record from the schema's own required fields. **Use this instead of picking a number by hand.**
+  `-- --next-id` just prints the next free id without writing. It refuses to allocate while any
+  duplicate id is outstanding.
+- `npm run validate:duplicate-ids` — fails if one `DEC-xxxx` names two different files anywhere.
+  Also folded into `validate:schema`, so it runs on every branch that validates. Both it and the
+  allocator enumerate **every local and remote ref plus the working tree**, not just `main` —
+  see ruling 5 below.
 - `npm run prune:active` — lists which `_active/` files are 30+ days old (pure logic; the actual
   deletion + issue-opening happens in `.github/workflows/prune-active.yml`).
 - All of the above speak the same `cli-output@1` JSON contract as `appforge-kit`'s CLI
@@ -46,7 +54,9 @@ are hand-maintained.
 
 - `.github/workflows/pr-checks.yml` (on every PR to `main`): the `board-approved`-label gate on
   `company/`/`strategy/`/`policies/`, the append-only check on `decisions/`/`postmortems/`, the
-  DEC/PM schema validator, and the INDEX-freshness check.
+  DEC/PM schema validator, the duplicate-DEC-id check, and the INDEX-freshness check. The
+  duplicate-id job needs full history with every branch fetched; a shallow or single-branch
+  checkout would pass a collision it cannot see.
 
   **All four of those are advisory checks. They go red; they do not refuse the merge.** Measured
   read-only on 2026-09-29 (APP-134): `GET /repos/ravitejakamalapuram/appforge-brain/branches/main`
@@ -129,3 +139,16 @@ deliberate.
    `appforge-kit/packages/schemas/src/validate-permissions.ts` — the same reason applies here even
    though this repo has no TypeScript build step (Node's ESM resolution of the CJS `ajv` package
    needs the same named-import form).
+
+5. **DEC id collisions: the number stays with whichever record was committed first — unless the
+   first-committed record is also the less-cited one, in which case the citation graph wins.**
+   Ruled in `DEC-0015` (APP-84) after `DEC-0009` and `DEC-0010` each ended up naming two different
+   decisions. Two records were written on separate unmerged branches; every check in the repo read
+   a single tree, so all four were individually valid and nothing flagged the clash. The tiebreak
+   above is recorded here so the next collision needs no fresh judgement. The recurrence fix is
+   mechanism, not instruction: `npm run new-decision` allocates ids by enumerating every ref, and
+   `validate:duplicate-ids` (folded into `validate:schema` and run in CI) fails when one id names
+   two files. Both read all local refs, all remote-tracking refs, and the working tree — reading
+   only `main` was the entire bug. Residual, stated and accepted in the ruling: two agents running
+   the allocator within the same few seconds can still collide, and the duplicate check then
+   catches it at the next validation run rather than preventing it.

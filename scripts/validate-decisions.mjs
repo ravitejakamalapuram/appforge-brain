@@ -7,6 +7,12 @@
 // Usage:
 //   node scripts/validate-decisions.mjs schema [--json]
 //   node scripts/validate-decisions.mjs append-only <baseRef> <headRef> [--json]
+//   node scripts/validate-decisions.mjs duplicate-ids [--json]
+//
+// `schema` also runs the duplicate-id check, so `npm run validate:schema` catches a collision on
+// every branch. That check deliberately reads every ref rather than the checked-out tree: the
+// DEC-0009/DEC-0010 collisions (DEC-0015, APP-84) were each individually valid on their own
+// unmerged branch, so a single-tree check could never have seen them.
 //
 // Exit code 0 = pass, 1 = fail. `--json` prints a single cli-output@1 line (see scripts/lib/cli-output.mjs).
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
@@ -16,6 +22,7 @@ import { fileURLToPath } from 'node:url';
 import { Ajv2020 } from 'ajv/dist/2020.js';
 import { parseFrontmatter } from './lib/frontmatter.mjs';
 import { buildOutput, printOutput } from './lib/cli-output.mjs';
+import { enumerateDecisionIds, findDuplicateIds } from './lib/decision-ids.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -123,6 +130,28 @@ function validateFile(filePath, kind) {
   return errors;
 }
 
+/**
+ * Fails when one DEC id is claimed by two different filenames anywhere in the repository.
+ *
+ * Scope is every local branch, every remote-tracking branch, and the working tree — NOT just the
+ * checked-out tree. That is the whole point: `DEC-0009` named both the portfolio-measurement
+ * rulings and the credential-containment ruling, on two branches neither of which had merged, and
+ * both were schema-valid in isolation. A check that reads one tree cannot see that.
+ */
+export function runDuplicateIdCheck(cwd = ROOT) {
+  const ids = enumerateDecisionIds(cwd);
+  const duplicates = findDuplicateIds(ids);
+  const errors = duplicates.map((d) => {
+    const claims = d.claims.map((c) => `${c.filename} (on ${c.refs.join(', ')})`).join(' vs ');
+    return `${d.id} is claimed by ${d.claims.length} different files: ${claims}`;
+  });
+  return {
+    ok: errors.length === 0,
+    errors,
+    data: { idsClaimed: ids.size, duplicateIds: duplicates.map((d) => d.id) },
+  };
+}
+
 export function runSchemaValidation() {
   const errors = [];
   const decisionFiles = listRecordFiles(path.join(ROOT, 'decisions'));
@@ -131,10 +160,20 @@ export function runSchemaValidation() {
   for (const f of decisionFiles) errors.push(...validateFile(f, 'decision'));
   for (const f of postmortemFiles) errors.push(...validateFile(f, 'postmortem'));
 
+  // Folded in rather than left as a separate npm script, so it runs on every branch that
+  // validates — a collision is only visible from a check that looks across refs.
+  const dup = runDuplicateIdCheck();
+  errors.push(...dup.errors);
+
   return {
     ok: errors.length === 0,
     errors,
-    data: { decisionsChecked: decisionFiles.length, postmortemsChecked: postmortemFiles.length },
+    data: {
+      decisionsChecked: decisionFiles.length,
+      postmortemsChecked: postmortemFiles.length,
+      idsClaimed: dup.data.idsClaimed,
+      duplicateIds: dup.data.duplicateIds,
+    },
   };
 }
 
@@ -234,6 +273,9 @@ function main() {
   if (mode === 'schema') {
     command = 'validate-decisions schema';
     result = runSchemaValidation();
+  } else if (mode === 'duplicate-ids') {
+    command = 'validate-decisions duplicate-ids';
+    result = runDuplicateIdCheck();
   } else if (mode === 'append-only') {
     const [, baseRef, headRef] = positional;
     if (!baseRef || !headRef) {
@@ -243,7 +285,7 @@ function main() {
     command = 'validate-decisions append-only';
     result = runAppendOnlyCheck(baseRef, headRef);
   } else {
-    console.error('Usage: node scripts/validate-decisions.mjs <schema|append-only> [...]');
+    console.error('Usage: node scripts/validate-decisions.mjs <schema|duplicate-ids|append-only> [...]');
     process.exit(2);
   }
 

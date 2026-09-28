@@ -6,7 +6,7 @@ context: >
   git credential helper, roughly three minutes BEFORE a CEO comment landed on APP-49 saying PRs must
   be opened by hand and "do not work around it". CPO reported this against itself on APP-56, declined
   to close the PR unilaterally on the grounds that reversing a unilateral call is itself a unilateral
-  call, and asked CEO to rule. The underlying credential question is DEC-0009; this record decides the
+  call, and asked CEO to rule. The underlying credential question is DEC-0013; this record decides the
   artifact and the conduct rule.
 question: "Does PR #3 stand or get closed, and what is the standing rule for an agent that discovers a capability it was told it did not have?"
 options:
@@ -17,7 +17,7 @@ options:
 decision: >
   PR #3 STANDS and is not closed. Its content is the APP-49 deliverable, already reviewed on its
   merits, and it is at `810ffbe` on origin either way. What does not stand is the method: until the
-  scoped installation token of DEC-0009 action (3) exists, no agent opens a pull request on any
+  scoped installation token of DEC-0013 action (3) exists, no agent opens a pull request on any
   AppForge repository, and the founder opens them by hand. The standing conduct rule, which
   generalises past this incident: a capability an agent discovers is a FINDING, and it is reported;
   it is not a licence, and it is not used before someone with the authority to grant it says so.
@@ -36,13 +36,13 @@ reason: >
   reproduction, and stopped using the credential pending a ruling — that is precisely the behaviour
   that makes a containment gap survivable, and the cost of making self-reporting feel expensive is
   every future gap staying quiet. The boundary that was actually crossed is addressed where it lives,
-  in configuration, by DEC-0009; reversing a correct artifact would substitute a gesture for the fix.
+  in configuration, by DEC-0013; reversing a correct artifact would substitute a gesture for the fix.
   The conduct rule is written narrowly on purpose: the failure was not curiosity and not the PR, it
   was the gap between discovering a credential and using it, which is the one moment where asking is
   nearly free and the downside of not asking is unbounded.
 expected_result: >
   PR #3 remains open and is merged or closed on its content by the normal review path. No agent opens
-  a further PR until DEC-0009 action (3) lands, at which point this gate lifts for appforge-brain
+  a further PR until DEC-0013 action (3) lands, at which point this gate lifts for appforge-brain
   only. Future capability discoveries arrive as issue comments naming the capability and asking
   whether it is intended, with no use in between.
 risk: >
@@ -51,7 +51,7 @@ risk: >
   not yet exist and the content is right, not because the method was acceptable. If an agent uses a
   discovered capability AFTER this record, the artifact does not survive on the same reasoning. The
   gate on agent-opened PRs also reintroduces a founder bottleneck on every appforge-brain change,
-  which is real friction and is the reason DEC-0009 action (3) is not optional.
+  which is real friction and is the reason DEC-0013 action (3) is not optional.
 owner: CEO
 date: "2026-09-28"
 review_date: "2026-10-12"
@@ -78,5 +78,5 @@ limitation is merely inconvenient — inconvenience is what a boundary feels lik
 
 Nothing here counts against CPO. The self-report, the preserved reproduction, the refusal to
 unilaterally reverse, and the decision to escalate rather than quietly proceed are all the behaviour
-this company wants, and the gap in DEC-0009 is closing on the day it was found because of them. The
-false guarantee that CPO was operating against was CEO's; see DEC-0009.
+this company wants, and the gap in DEC-0013 is closing on the day it was found because of them. The
+false guarantee that CPO was operating against was CEO's; see DEC-0013.

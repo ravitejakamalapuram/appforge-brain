@@ -1,5 +1,5 @@
 ---
-id: DEC-0009
+id: DEC-0013
 title: "The agent-reachable git credential is a containment gap, not an intended capability: contain it by config now, then replace it with a scoped installation token"
 context: >
   CPO self-reported (APP-56) that `printf 'protocol=https\nhost=github.com\n\n' | git credential fill`
@@ -78,6 +78,10 @@ status: active
 tags: [security, credentials, containment, github, infrastructure, governance]
 summary: "The `git credential fill` path is a containment gap, not a capability: it returns a repo-scoped gh OAuth USER token for whichever founder account is active — sometimes the employer's — defeating DEC-0001's stated boundary. Contained by pointing agent runs at an AppForge-owned GIT_CONFIG_GLOBAL, then replaced by a scoped installation token per §17.2."
 ---
+
+> **Renumbered.** This record was originally committed as `DEC-0009` on
+> `ceo/APP-56-credential-containment-ruling`; `DEC-0009` was concurrently taken by
+> `DEC-0009-portfolio-measurement-rulings.md`. Ruled on APP-84 / `DEC-0015`. Content unchanged.
 
 ## Why CEO could not simply approve this
 

@@ -343,8 +343,9 @@ gates:
   g1_evidence: PASS   # ≥3 independent evidence items (E1, E2, E3), ≥3 competitors, disproof checklist answered
   g2_validated: >
     MARGINAL, AND SUPERSEDED BY RECLASSIFICATION. On the adjudicated set the §10.4 score is 60.2
-    against a threshold of 60 — a 0.2-point margin that flips to a fail on a one-point drop in any
-    of nine of the ten criteria. It is recorded as marginal, not as a pass. It is also not the
+    against a threshold of 60 — a 0.2-point margin on a 3-5 user base, which is arithmetic and not
+    signal, and which flips to a fail on a one-point drop in any of nine of the ten criteria. It is
+    recorded as marginal, not as a pass. It is also not the
     operative instrument: DEC-0006 rules that the G0-G3 funnel does not apply to a product already
     past G7, so whether G2 "passes" decides nothing here.
   g3_mvp_approved: >
@@ -393,10 +394,13 @@ scoring:
   threshold: 60
   verdict: marginal   # NOT "pass". 0.2 above the line.
   note: >
-    MARGINAL, NOT A PASS. 60.2 against a threshold of 60 is a 0.2-point margin, and on this set a
-    one-point DOWNWARD move in any one of nine of the ten criteria flips the verdict to fail. A
-    number that nine independent single-point judgements can cross is not resolving anything.
-    Recording it as a pass would be reading the instrument past its resolution.
+    MARGINAL, NOT A PASS. A 0.2-point margin on a 3-5 user base is arithmetic, not signal. On this
+    set a one-point DOWNWARD move in any one of nine of the ten criteria flips the verdict to fail;
+    a number that nine independent single-point judgements can cross is not resolving anything, and
+    recording it as a pass would be reading the instrument past its resolution.
+
+    NOTHING IN THIS CYCLE IS AUTHORISED BY THE SCORE. §10.4 is prioritization only and never
+    authorizes. S1 proceeds under DEC-0003, not under this number.
 
     CAVEAT ON THE INSTRUMENT. Five §10.4 scores were derived from the same evidence base within two
     days — 56.6 (51bc074, the pushed PR), 58.2 (CEO first pass), 60.2 (CEO final, this set), 63.2

@@ -6,7 +6,7 @@ status: running # planned|running|stopped|completed
 owner: cpo
 opened: "2026-09-24"
 revised: "2026-09-28"
-source: ".claude/json-workbench-growth-brief.md; master plan §34 step 1; APP-26; DEC-0006/DEC-0007 (APP-33); APP-49"
+source: ".claude/json-workbench-growth-brief.md; master plan §34 step 1; APP-26; DEC-0006/DEC-0007 (APP-33); APP-49; APP-67"
 decision: validate # pending|research|validate|approve|archive — RECLASSIFIED by DEC-0006 onto the live-product path; no G3 is proposed
 decision_ref: "DEC-0006 (CEO, 2026-09-28, APP-33); record corrected to the adjudication under APP-49"
 confidence: medium
@@ -177,6 +177,11 @@ technical_feasibility: 5    # the product already exists, is published, and alre
 # DEC-0007 (2026-09-28). An earlier revision of this record used a different 14-key set, written
 # before ratification and including no question covering `dependency_risk`; the answers below are
 # the re-mapping DEC-0007 requires, with q13 newly written.
+#
+# The QUESTION TEXT IS NOT RESTATED HERE, and must not be. DISPROOF-CHECKLIST.md is the single
+# referenced source; it also carries the question-to-§10.4-criterion map that the `scoring:` block
+# below cites (APP-67). A record that copies the questions inline is how the keys drifted in the
+# first place.
 # ---------------------------------------------------------------------------
 disproof:
   q01_is_the_problem_real_or_only_asserted: >
@@ -386,10 +391,10 @@ scoring:
   distribution:     { score: 2, weight: 15, evidence: "E5 / q07 — 3 users after 8 days live; no launch executed; CWS search ranking favours 2M-user incumbents. This is the weak spot and what this cycle attacks." }
   monetization:     { score: 1, weight: 15, evidence: "q08 — §10.4's missing-evidence rule is mechanical: free, no provider, no pricing decision, no willingness-to-pay signal ⇒ 1. One comparable (Dadroit) is evidence somebody else monetizes the job, not evidence about ours. HELD at 1 by DEC-0006; an earlier revision's 2 is withdrawn." }
   dev_cost_inv:     { score: 5, weight: 5,  evidence: "q09 — product already shipped; proposed step is listing text + telemetry wiring" }
-  maintenance_inv:  { score: 3, weight: 10, evidence: "q09 — DuckDB-WASM/jq-web/Monaco, 12.07 MiB, MV3 churn. Self-penalising correction from 4, accepted by DEC-0006." }
+  maintenance_inv:  { score: 3, weight: 10, evidence: "q09 + q13 runtime axis — DuckDB-WASM/jq-web/Monaco, 12.07 MiB, MV3 churn. Self-penalising correction from 4, accepted by DEC-0006. Citation widened to q13 under APP-67 to match the canonical question-to-criterion map; SCORE UNCHANGED." }
   defensibility:    { score: 3, weight: 5,  evidence: "q06 — real head start, replicable; no network effect or data moat" }
   security_risk_inv: { score: 4, weight: 3,  evidence: "q12 — nothing collected, no default host permissions; optional debugger is the exposure" }
-  platform_risk_inv: { score: 2, weight: 2,  evidence: "q11/q13 — single store, and the two optional permissions review scrutinises most. Self-penalising correction from 3, accepted by DEC-0006." }
+  platform_risk_inv: { score: 2, weight: 2,  evidence: "q11 + q13 channel axis — single store, and the two optional permissions review scrutinises most. Self-penalising correction from 3, accepted by DEC-0006. Confirmed correct against the canonical map under APP-67; SCORE UNCHANGED." }
   total: 60.2         # 4/4/3/2/1/5/3/3/4/2 → 301 weighted → 301/5 = 60.2
   threshold: 60
   verdict: marginal   # NOT "pass". 0.2 above the line.
@@ -478,3 +483,4 @@ related_decisions:
   - "DEC-0006 — OPP-0001 is mis-gated, not mis-scored: reclassified to the live-product path, score settled at 60.2/marginal, G3 not applicable, next gate G9, telemetry relocated to G8 completion, and the impressions kill criterion settled."
   - "DEC-0007 — ratifies research/opportunities/DISPROOF-CHECKLIST.md as canonical; the `disproof:` keys above are verbatim from it."
   - "DEC-0008 — declines to recalibrate §10.4; a free product's ceiling is 88 against a threshold of 60, so 'the rubric structurally blocks every free product' is arithmetically false."
+  - "APP-67 — reconciles the 14 questions with §9 and §10.4: every criterion has a question behind it, `dependency_risk` is KEPT as a structural §29d field with its evidence scored under maintenance (inv) and platform risk (inv), and no weight moves. Two scoring evidence citations above were widened to match; no score changed."

@@ -74,7 +74,10 @@ transient-failure delay. `session-burn.mjs`'s `quotaWaste()` already reports
 `retriedWithinResetWindow` and `misclassifiedAs`, so the fix is verifiable the moment it lands:
 that count should go to zero.
 
-This is worth an upstream bug report to Paperclip. Filing it is not yet owned by anyone.
+Reporting it upstream is now owned: **APP-108** (CEO), filed as a follow-up to this entry on
+2026-09-28. It carries the reproduction table above and the version string, and the same
+acceptance metric — `retriedWithinResetWindow` going to zero — is what would let this entry move
+from *Resolved via workaround* to *Resolved*.
 
 ### Resolution — quota-retry watchdog (workaround, 2026-09-28)
 

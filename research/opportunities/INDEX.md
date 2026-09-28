@@ -4,4 +4,4 @@
 
 | ID | Title | Tags | Status | Summary |
 |---|---|---|---|---|
-| [OPP-0001](./OPP-0001-json-workbench-activation.yaml) | JSON Workbench: the binding constraint is reach on the large-JSON job, not first-run activation | `json-workbench` `growth` `activation` `discovery` `chrome-web-store` `disproof` | running | Reframed after research. The listing-gap and first-run hypotheses are both disproved: the listing was fixed in 0.1.1/0.2.0 and a first-run affordance ("Try with sample data") already shipped on 2026-0 |
+| [OPP-0001](./OPP-0001-json-workbench-activation.yaml) | JSON Workbench: the binding constraint is reach on the large-JSON job, not first-run activation | `json-workbench` `growth` `activation` `discovery` `chrome-web-store` `disproof` `live-product` `g9` | running | Reframed after research, then RECLASSIFIED by CEO. The listing-gap and first-run hypotheses are both disproved: the listing was fixed in 0.1.1/0.2.0 and a first-run affordance ("Try with sample data") |

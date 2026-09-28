@@ -1,24 +1,26 @@
 id: OPP-0001
 title: "JSON Workbench: the binding constraint is reach on the large-JSON job, not first-run activation"
-tags: [json-workbench, growth, activation, discovery, chrome-web-store, disproof]
+tags: [json-workbench, growth, activation, discovery, chrome-web-store, disproof, live-product, g9]
 product_id: json-workbench
 status: running # planned|running|stopped|completed
 owner: cpo
 opened: "2026-09-24"
 revised: "2026-09-28"
-source: ".claude/json-workbench-growth-brief.md; master plan §34 step 1; APP-26"
-decision: validate # pending|research|validate|approve|archive — CPO recommends G2; CEO approves, board approves G3
-decision_ref: "APP-26 (CPO → CEO handoff 2026-09-28)"
+source: ".claude/json-workbench-growth-brief.md; master plan §34 step 1; APP-26; DEC-0006/DEC-0007 (APP-33); APP-49"
+decision: validate # pending|research|validate|approve|archive — RECLASSIFIED by DEC-0006 onto the live-product path; no G3 is proposed
+decision_ref: "DEC-0006 (CEO, 2026-09-28, APP-33); record corrected to the adjudication under APP-49"
 confidence: medium
 summary: >
-  Reframed after research. The listing-gap and first-run hypotheses are both disproved: the listing
-  was fixed in 0.1.1/0.2.0 and a first-run affordance ("Try with sample data") already shipped on
-  2026-09-23. Activation is unmeasurable — the product emits no telemetry — and with 3-5 users the
-  activation lever has no room in it anyway. The real constraint is discovery: JSON Workbench is
-  the only CWS extension that opens a 10 MB+ JSON/JSONL file, and its title and short description
-  contain none of the words that audience searches. Score 63.2 (threshold 60); G1 PASS, G2 PASS
-  reframed; smallest first step is a listing keyword rewrite plus shipping telemetry so the
-  activation question becomes answerable at all.
+  Reframed after research, then RECLASSIFIED by CEO. The listing-gap and first-run hypotheses are
+  both disproved: the listing was fixed in 0.1.1/0.2.0 and a first-run affordance ("Try with sample
+  data") already shipped on 2026-09-23. Activation is unmeasurable — the product emits no telemetry
+  — and with 3-5 users the activation lever has no room in it anyway. The real constraint is
+  discovery: JSON Workbench is the only CWS extension that opens a 10 MB+ JSON/JSONL file, and its
+  title and short description contain none of the words that audience searches. Adjudicated §10.4
+  score is 60.2 against a threshold of 60, recorded as MARGINAL and not as a pass. The score is not
+  the operative instrument here: G0-G3 is the new-product funnel and JSON Workbench has been live
+  since 2026-09-20, so no G3 is proposed at any score. The real next gate is G9 (PMF signal, day 30
+  = 2026-10-20), which is itself blocked because telemetry is the unmet half of G8.
 
 # ---------------------------------------------------------------------------
 # NOTE ON THE REFRAME (read this before the rest)
@@ -41,6 +43,16 @@ summary: >
 #     3 users on 2026-09-28 (CWS dashboard reported 5 on 2026-09-27). Doubling activation on a
 #     base of 3-5 users buys at most 2-3 activated users. Doubling reach is the only lever with
 #     room in it.
+# ---------------------------------------------------------------------------
+# NOTE ON THE RECLASSIFICATION (DEC-0006, 2026-09-28)
+# ---------------------------------------------------------------------------
+# This record was run through the G0-G3 new-product funnel, which was a routing error. G3's
+# acceptance criteria authorise a build that has not happened; JSON Workbench shipped to the
+# Chrome Web Store on 2026-09-20 and is past G7. OPP-0001 therefore sits on the live-product
+# path and its next gate is G9, not G3. See the `gates:` block below. The §10.4 score is retained
+# because §10.4 is prioritization and the record must still carry it honestly — but it is not the
+# deciding instrument, and DEC-0006 records that five derivations of the same evidence spanned
+# 8.6 points with the threshold sitting inside that spread.
 # ---------------------------------------------------------------------------
 
 problem: >
@@ -118,6 +130,7 @@ sources:
   - "https://dev.to/wayknow123/i-tested-every-json-viewer-after-the-formatter-scandal-heres-what-i-found-4dcl"
   - "https://dadroit.com/blog/open-big-json/"
   - "appforge-brain/research/competitors/CWS-json-viewers.md"
+  - "appforge-brain/research/opportunities/DISPROOF-CHECKLIST.md"
   - "json-workbench: .appforge/product.yaml, CHANGELOG.md, chrome-store/store.config.json, logs/chrome-store/2026-09-20-release.log"
 
 competitors:
@@ -144,9 +157,10 @@ distribution: >
 monetization: >
   Free today; no payment provider wired and no pricing block in `.appforge/product.yaml`. Any
   paid tier is an untested hypothesis. Nearest comparable is Dadroit, which monetizes the same
-  job as a native app. Per SOUL.md ("a pricing hypothesis without a comparable or a stated
-  assumption isn't ready for a PRD"), monetization is explicitly OUT of scope for this cycle.
-estimated_revenue: { low: 0, high: 0, basis: "Free product, no payment provider, no pricing decision. This cycle's return is measured in installs and measurable activation, not revenue." }
+  job as a native app — but that is evidence somebody else monetizes the job, not evidence about
+  ours. Per SOUL.md ("a pricing hypothesis without a comparable or a stated assumption isn't ready
+  for a PRD"), monetization is explicitly OUT of scope for this cycle.
+estimated_revenue: { low: 0, high: 0, basis: "Free product, no payment provider, no pricing decision. This cycle's return is measured in impressions and measurable activation, not revenue." }
 estimated_cost: { ai_cents: 1500, builder_weeks: 0.5 }
 
 development_complexity: 2   # listing text is data; telemetry is a kit integration, not new product surface
@@ -157,167 +171,306 @@ dependency_risk: 3          # WASM toolchain + a single store as sole distributi
 technical_feasibility: 5    # the product already exists, is published, and already has the first-run affordance
 
 # ---------------------------------------------------------------------------
-# DISPROOF CHECKLIST — all 14 mandatory (AGENTS.md; master plan §10.2/§10.3)
+# DISPROOF CHECKLIST — all 14 mandatory.
 #
-# PROVENANCE WARNING: the canonical 14-question list lives in "§9 of the brief", which is not
-# present in appforge-control, appforge-brain, or appforge-ai-master-plan.md — the master plan
-# only declares the field (`disproof: Record<DisproofQuestion,string>`, §17) without enumerating
-# the questions. The 14 below are reconstructed from the G1/G2 acceptance criteria in §10.3, the
-# RESEARCHING→VALIDATING evidence requirements in §10.2, and the Opportunity fields in §17
-# (§10.3's literal "feature not product? = no" is preserved verbatim as Q6). CEO/founder should
-# confirm or replace this list; if the canonical questions differ, these answers must be re-mapped
-# before G3, not after.
+# Keys are verbatim from research/opportunities/DISPROOF-CHECKLIST.md, ratified as CANONICAL by
+# DEC-0007 (2026-09-28). An earlier revision of this record used a different 14-key set, written
+# before ratification and including no question covering `dependency_risk`; the answers below are
+# the re-mapping DEC-0007 requires, with q13 newly written.
 # ---------------------------------------------------------------------------
 disproof:
-  q01_is_the_problem_real_outside_our_own_heads: >
-    YES, but not the problem that was asked about. The large-file problem is confirmed by an
+  q01_is_the_problem_real_or_only_asserted: >
+    REAL, but not the problem that was asserted. The large-file problem is confirmed by an
     independent benchmark (E1), a commercial content market built on the query (E2), and a
     third-party author who went looking for exactly this tool and could not find it (E3). The
-    problem as originally framed — "few users complete a first successful pipeline run" — has NO
-    evidence in either direction (E5): the product emits no telemetry, so no one has ever observed
-    a first pipeline run succeed or fail. That half of the premise is unproven, not proven.
-  q02_is_the_target_user_specific_enough_to_reach: >
-    YES. Engineers handling >10 MB JSON/JSONL are identifiable by the query they type and by the
-    communities they already post the problem in. The channels are named and free.
-  q03_how_often_do_they_hit_it: >
-    Daily-to-weekly for the core segment (API payloads, log exports, NDJSON dumps). Not a rare
-    event that gets forgotten between occurrences — which matters, because a tool for a rare
-    problem is uninstalled before it is needed again.
-  q04_is_the_existing_workaround_already_good_enough: >
-    PARTIALLY — this is the strongest argument against. jq already solves the large-file job
-    completely for anyone who knows jq, at zero switching cost, and our target user is exactly the
-    population most likely to know jq. Our claim is narrower than "jq is bad": it is that the
-    payload is already in a browser tab, and the round trip out to a terminal and back is the
-    friction. That claim is plausible and UNVALIDATED. If it is false, this opportunity is a nice
-    tool with no pull.
-  q05_if_it_is_obvious_and_valuable_why_is_the_space_empty: >
-    Because it was technically hard until recently. Streaming-parse + DuckDB-WASM + jq-web in an
-    MV3 extension is a 12 MiB package and a real engineering effort; the incumbents are
-    pretty-printers built when "JSON in a tab" meant a 40 KB API response. The space is not empty
-    because the demand is absent — E1 shows the incumbents tried and failed at 10 MB.
-  q06_is_this_a_feature_not_a_product: >
-    NO — but only for the reframed opportunity, and this deserves a caveat. "Improve first-run" is
-    unambiguously a feature, and it already shipped (0.2.0, "Try with sample data"). "Be the
-    browser tool for large JSON/JSONL" is a product position: it is the whole reason to install,
-    and it is not a capability an incumbent adds as a checkbox — JSON Formatter would have to
-    rewrite its parser to claim it.
-  q07_can_we_actually_be_found: >
-    NOT TODAY, and this is the finding. The listing is factually complete (verified live
-    2026-09-28: full description covering JSONL/jq/JSONata/DuckDB/Diff, promo video, 8 media items,
-    Edge 120+ note) — the 2026-09-24 "weak listing" hypothesis is DISPROVED as a content-gap
+    observation that distinguishes real from asserted is E1's: incumbents with 2M users measurably
+    fail at 10 MB, which is not something a user could be talked into believing.
+    The problem as originally framed — "few users complete a first successful pipeline run" — has
+    NO evidence in either direction (E5): the product emits no telemetry, so no one has ever
+    observed a first pipeline run succeed or fail. That half of the premise is unproven, not
+    disproven, and it stays unprovable until telemetry ships.
+  q02_who_has_it_and_how_often: >
+    Backend, data and platform engineers handling API payloads, log exports and NDJSON dumps;
+    secondarily QA engineers and analysts inspecting captured responses. Specific enough to reach:
+    they are identifiable by the query they type into CWS and by the communities they already post
+    the problem in (r/dataengineering, r/commandline, DEV), and those channels are free.
+    FREQUENCY IS AN ESTIMATE, NOT A MEASUREMENT. `frequency: daily` is a judgement from the shape
+    of the work, not from interviews, a survey, or search-volume data — none of which were
+    obtained. Per the checklist's own rule, it is labelled as an estimate. What is defensible is
+    the weaker claim that this is not a rare event forgotten between occurrences, which matters
+    because a tool for a rare problem is uninstalled before it is needed again.
+  q03_what_do_they_do_today_and_is_it_good_enough: >
+    Today they leave the browser: jq, VS Code, a native app (Dadroit/Pandia), a hosted paste tool,
+    or grep. PARTIALLY GOOD ENOUGH — this is the strongest argument against the opportunity. jq
+    already solves the large-file job completely for anyone who knows jq, at zero switching cost,
+    and our target user is exactly the population most likely to know jq. Our claim is narrower
+    than "jq is bad": it is that the payload is already in a browser tab, and the round trip out to
+    a terminal and back is the friction. That claim is plausible and UNVALIDATED. If it is false,
+    this is a nice tool with no pull.
+    Whether they would actually switch is likewise UNKNOWN and deliberately left unknown. The
+    5.0/1-rating signal is a single data point from an 8-day-old listing and is worth nothing
+    statistically. E3's mass-uninstall event shows this audience does switch when given a reason,
+    but that is about them leaving a bad actor, not about them adopting us.
+  q04_is_this_a_feature_rather_than_a_product: >
+    NO for the reframed opportunity — but the answer runs in both directions and both halves belong
+    here. "Improve first-run" is unambiguously a FEATURE, and it already shipped (0.2.0, "Try with
+    sample data"). The opportunity as written on the founder's intake ticket was a task list with an
+    unverified premise attached, and to that extent the criticism lands.
+    "Be the browser tool for large JSON/JSONL" is a PRODUCT position: it is the whole reason to
+    install, and it is not a capability an incumbent adds as a checkbox — JSON Formatter would have
+    to rewrite its parser to claim it. That is the version of the opportunity this record carries,
+    and G2's "feature not product? = no" is satisfied against it.
+  q05_who_already_solves_it_and_how_strong_are_they: >
+    Seven named entrants are listed in `competitors` above (five CWS formatters totalling ~2.5M
+    users, ClearJSON on the privacy axis, Dadroit as the adjacent native app), well past the
+    three-competitor floor; the search log is in research/competitors/CWS-json-viewers.md.
+    COMPETITION STRENGTH 3 of 5 — crowded, but none of the incumbents does the job. E1 is the
+    measurement: the 2M-user category leader gave up at 10 MB and none of the six formatted 50 MB.
+    Why the space is not simply empty-because-worthless: it was technically hard until recently.
+    Streaming-parse + DuckDB-WASM + jq-web in an MV3 extension is a 12 MiB package and a real
+    engineering effort; the incumbents are pretty-printers built when "JSON in a tab" meant a 40 KB
+    API response. The incumbents tried and failed, which is different from not caring.
+  q06_is_the_differentiation_copyable: >
+    YES — there is no moat, and the record should not pretend otherwise. On CAPABILITY the head
+    start is real but not trivial to close (Q05): closing it means rewriting a parser, not adding a
+    checkbox. On PRIVACY the gap is being closed right now by others — ClearJSON was built in
+    August 2026 by the author of E3, with an audience already attached to the post that announced
+    it. Competing on trust alone, we are late. Competing on trust AND capacity together is still
+    open, and that combination is the only defensible position here. No network effect, no data
+    moat, no switching cost; defensibility is scored 3.
+  q07_how_would_anyone_ever_find_this: >
+    THEY WOULD NOT, TODAY, and this is the finding. The listing is factually complete (verified
+    live 2026-09-28: full description covering JSONL/jq/JSONata/DuckDB/Diff, promo video, 8 media
+    items, Edge 120+ note) — the 2026-09-24 "weak listing" hypothesis is DISPROVED as a content-gap
     claim. What remains is a keyword-targeting failure: the title is the bare string
     "JSON Workbench" (CWS allows far more) and the short description opens with
     "Inspect, transform, validate, diff, and query large JSON locally" — an accurate sentence that
     contains almost none of the terms the E2 audience actually searches ("large JSON file",
     "JSONL", "NDJSON", "big JSON viewer"). We are invisible to the one query we would win.
-  q08_would_an_incumbent_close_the_gap_trivially: >
-    NOT TRIVIALLY on capability — see Q06. But the PRIVACY axis is being closed right now by
-    others: ClearJSON was built in August 2026 by the author of E3, with an audience already
-    attached to the post that announced it. If we compete on trust alone we are late. Competing on
-    trust AND capacity is still open.
-  q09_will_they_switch_or_just_keep_what_they_have: >
-    UNKNOWN, and deliberately left unknown. The 5.0/1-rating signal is a single data point from an
-    8-day-old listing and is worth nothing statistically. E3's mass-uninstall event is evidence
-    that this audience does switch when given a reason, but that is about them leaving a bad actor,
-    not about them adopting us. This is the question the proposed experiment is designed to answer.
-  q10_can_it_be_monetized: >
-    NOT YET, and not in this cycle. Free, no provider wired, no pricing decision. Dadroit is a
-    comparable that monetizes the same job natively, so a path plausibly exists, but a pricing
-    hypothesis with one comparable and no willingness-to-pay signal is not PRD-ready. Scoring
-    monetization honestly at 2 is what keeps this opportunity's score near the threshold rather
-    than comfortably above it.
-  q11_can_we_build_it_within_our_constraints: >
-    YES — most of it is already built. The proposed first step is store-listing text (data, not
-    code) plus wiring the telemetry the master plan already mandates. Well inside the $100/month
-    cap (DEC-0004) and roughly half a builder week.
-  q12_can_we_maintain_it: >
-    YES, with a real ongoing cost. DuckDB-WASM, jq-web and Monaco are heavy dependencies, the
+    CWS search is also the only channel in use, and its ranking favours 2M-user incumbents, which
+    is why distribution is scored 2 and is the weakest criterion in the record.
+  q08_will_anyone_pay_and_how: >
+    NO EVIDENCE EITHER WAY, and not in this cycle. Free, no payment provider wired, no pricing
+    decision, no willingness-to-pay signal of any kind. The nearest comparable is Dadroit, which
+    monetizes the same job as a native desktop app — evidence that somebody monetizes the job, not
+    evidence about ours. §10.4's missing-evidence rule is mechanical and scores absent evidence 1,
+    so monetization is scored 1, not 2; an earlier revision of this record scored it 2 on the
+    strength of the Dadroit comparable alone and that was wrong on the rule.
+    `estimated_revenue` is 0/0 and honestly so.
+  q09_what_does_it_cost_to_build_and_maintain: >
+    BUILD: most of it is already built. The remaining first step is store-listing text (data, not
+    code) plus wiring the telemetry the master plan already mandates — roughly 0.5 builder weeks
+    and ~$15 of AI spend, well inside the $100/month cap (DEC-0004). Development complexity 2.
+    MAINTAIN: a real ongoing cost. DuckDB-WASM, jq-web and Monaco are heavy dependencies, the
     package is 12.07 MiB, and MV3 policy churn lands on exactly the optional permissions we use.
     Maintenance complexity 3 of 5 — not a reason to stop, a reason not to add surface area now.
-  q13_what_is_the_platform_and_policy_risk: >
-    MODERATE and concentrated. CWS is the single distribution channel, and the optional `debugger`
-    and `<all_urls>` permissions are the ones store review scrutinises hardest — E3's scandal has
-    made reviewers and users more alert to exactly this shape. Mitigation already in place: both
-    are optional, neither is requested on default install, and `data_collection.collected` is
-    empty. ADDING TELEMETRY TOUCHES THIS. Any `app_installed`/`feature_used` work must keep the
-    privacy claim literally true, or it destroys the one differentiator E3 says the audience is
-    actively shopping for. This is a hard constraint on the follow-on work, not a footnote.
-  q14_what_would_prove_us_wrong_pre_registered: >
-    Pre-registered falsifiers, to be locked before any build work starts:
-    (a) REACH — if weekly new installs do not at least triple within 28 days of the listing rewrite
-        plus one distribution post, the "we are invisible on the right query" theory is wrong and
-        the problem is demand, not discovery → archive with a learning note;
-    (b) ACTIVATION — once telemetry is live, if fewer than 30% of installs emit a successful
-        first pipeline/SQL/diff within 7 days, the founder's original activation hypothesis is
-        CONFIRMED and first-run work becomes the next cycle's opportunity, on data;
+    That is also the reason `explicitly_out_of_scope` refuses new product surface in this cycle.
+  q10_is_it_technically_feasible: >
+    YES, demonstrably — feasibility 5, because the thing already exists and is published. The
+    large-file claim is measured on our own bench (10 MB / 244 ms, 100 MB / 2.29 s, 500 MB /
+    11.82 s parser throughput) and 0.2.0 is live on CWS. The first-run affordance the founder asked
+    for also already shipped. The open technical question is not "can it be built" but "can honest,
+    content-free telemetry answer the activation question at all" — see q12; if it cannot, the
+    answer is to change the question, not the privacy claim.
+  q11_what_policy_or_store_rules_could_kill_it: >
+    MODERATE and concentrated — policy risk 3. The optional `debugger` and `<all_urls>` permissions
+    are the ones CWS review scrutinises hardest, and E3's scandal has made reviewers and users more
+    alert to exactly this shape. A permission-policy change or a stricter review pass on those two
+    is the single most likely store-side kill. Mitigation already in place: both are optional,
+    neither is requested on default install, and `data_collection.collected` is empty.
+    A listing-text-only change does not trigger package re-review, but CTO is to confirm the store
+    review path rather than the record assuming it (DEC-0006, risk section).
+  q12_what_is_the_security_privacy_exposure: >
+    LOW TODAY AND IT IS LOAD-BEARING — security risk 2. Nothing is collected, nothing is
+    transmitted (`data_collection.collected: []`, `transmitted.endpoints: []`), and no host
+    permission is requested on default install. The one exposure is the optional `debugger`
+    permission, which a user must grant explicitly.
+    ADDING TELEMETRY TOUCHES THIS DIRECTLY. Any `app_installed`/`feature_used` work must keep the
+    privacy claim literally true, because that claim is the exact axis E3 says the audience is
+    actively shopping on. This is a hard constraint on the follow-on work, not a footnote: if the
+    only honest telemetry is too weak to answer the activation question, the question changes and
+    the claim does not. CTO owns that design before Builder is committed.
+  q13_what_dependencies_could_disappear: >
+    DEPENDENCY RISK 3, on two independent axes, and this question had no answer at all in the
+    pre-DEC-0007 version of this record even though the score was carried.
+    RUNTIME: DuckDB-WASM, jq-web and Monaco are three heavy third-party artefacts, two of them WASM
+    builds of projects with small maintainer counts. If a WASM toolchain stops shipping Chrome-
+    compatible builds, or an upstream abandons its WASM target, the feature that depends on it
+    degrades and there is no drop-in substitute — jq-web in particular has no equivalent. What
+    happens then: the affected surface (SQL, or jq) is removed and the product falls back to
+    tree/table/JSONata, which is a smaller product but still the only one doing the large-file job.
+    The parser itself is ours, so the core claim survives any single dependency loss.
+    CHANNEL: more serious. The Chrome Web Store is the sole distribution channel and the sole
+    update mechanism. Delisting, a policy change against our optional permissions (q11), or a
+    suspended developer account removes 100% of distribution at once with no second channel to fall
+    back on. Nothing in the current plan reduces that concentration, and it should not be treated
+    as mitigated. The Edge 120+ compatibility note is the only partial hedge and it is not yet a
+    listed channel.
+  q14_what_would_prove_us_wrong_and_did_we_look: >
+    DID WE LOOK — yes, and two of the three things we went looking for came back against us, which
+    is why this record was rewritten rather than defended. Pre-registered before the search:
+    (i) "the listing is missing content" — searched the live listing 2026-09-28 and it is complete
+    (video, 8 media items, full feature description); FALSE, hypothesis dropped. (ii) "first-run
+    onboarding is missing" — found already shipped in 0.2.0 on 2026-09-23; FALSE, hypothesis
+    dropped. (iii) "activation is low" — found UNMEASURABLE, no telemetry has ever run; not false,
+    but unfalsifiable today, which is itself the finding. The one hypothesis that survived contact
+    is the keyword-targeting failure in q07.
+    THE BINDING FALSIFIER, settled by DEC-0006 as the single version that counts:
+      WEEKLY CWS IMPRESSIONS, the four weeks after the listing change versus the four weeks before,
+      MUST AT LEAST DOUBLE. Installs are a secondary read only. If impressions do not at least
+      double, the "discovery is a copy problem" hypothesis is dead, the constraint is off-store
+      distribution, and that is recorded as a DEC rather than iterated on.
+    Impressions and not installs, because the hypothesis is specifically "we are invisible to the
+    query this audience types": impressions measure reach directly, installs conflate reach with
+    appeal. The competing "triple weekly installs within 28 days" wording that appeared in earlier
+    revisions of this record is WITHDRAWN — off a base of three users that is nine users, which is
+    indistinguishable from noise. The distribution post (S3) is deferred out of this measurement
+    window so it cannot confound the read; the listing change must be the only variable.
+    TWO FURTHER FALSIFIERS, not measurable until telemetry completes G8, and pre-registered now so
+    they cannot be moved later:
+    (b) ACTIVATION — if fewer than 30% of installs emit a successful first pipeline/SQL/diff within
+        7 days, the founder's original activation hypothesis is CONFIRMED and first-run work becomes
+        the next cycle's opportunity, on data rather than assertion;
     (c) RETENTION — if day-7 return rate is under 10%, the "already in the tab" convenience thesis
-        (Q04) is false and no amount of discovery fixes it → kill.
-    None of (a)-(c) is measurable today. That is the argument for the scope below.
+        (q03) is false and no amount of discovery fixes it → kill.
+
+# ---------------------------------------------------------------------------
+# GATES — OPP-0001 is on the LIVE-PRODUCT path, not the G0-G3 new-product funnel (DEC-0006).
+# ---------------------------------------------------------------------------
+gates:
+  path: live-product
+  g0_discovered: PASS
+  g1_evidence: PASS   # ≥3 independent evidence items (E1, E2, E3), ≥3 competitors, disproof checklist answered
+  g2_validated: >
+    MARGINAL, AND SUPERSEDED BY RECLASSIFICATION. On the adjudicated set the §10.4 score is 60.2
+    against a threshold of 60 — a 0.2-point margin that flips to a fail on a one-point drop in any
+    of nine of the ten criteria. It is recorded as marginal, not as a pass. It is also not the
+    operative instrument: DEC-0006 rules that the G0-G3 funnel does not apply to a product already
+    past G7, so whether G2 "passes" decides nothing here.
+  g3_mvp_approved: >
+    NOT APPLICABLE. No G3 is proposed, at this score or any other. G3's acceptance criteria (scope,
+    budget, kill criteria pre-registered, slot plan) authorise a build that has not happened;
+    JSON Workbench released to CWS on 2026-09-20 and 0.2.0 has been PUBLISHED since 2026-09-25.
+    The build G3 would authorise is already in users' hands.
+  g7_release_approval: >
+    PASSED for the current package (released 2026-09-20). A NEW G7 board approval is required
+    before the S1 listing rewrite is PUBLISHED: §10.3's G7 names "listing" explicitly in the
+    approval diff, and neither CEO nor CPO may trigger a release. Drafting and PR'ing the copy
+    proceeds now under DEC-0003.
+  g8_launched: >
+    PARTIAL — this is the blocker. G8's criteria are "store status PUBLISHED verified by status job"
+    AND "telemetry receiving app_installed". The first is met; the second is not, and telemetry is
+    intentionally not enabled (`analytics_project: null`, `data_collection.collected: []`).
+    JSON Workbench has therefore never completed G8. Telemetry is not a growth nice-to-have, it is
+    the unmet half of G8 and the binding blocker on Q4 objective O2.
+  next_gate:
+    id: G9
+    name: "PMF signal"
+    owner: analyst
+    due: "2026-10-20"   # day 30 from the 2026-09-20 first release
+    blocked_by: >
+      G9's acceptance criteria are pre-registered thresholds measured at day 30/60/90, and none of
+      them is measurable while G8 is half-complete. Unblocking G9 means completing G8 (telemetry,
+      CTO to scope with the q12 privacy constraint binding). The impressions falsifier in q14 is
+      readable from the CWS dashboard without telemetry and is the one G9 input available today.
+  after: "G10 — scale/iterate/pause/kill, CEO to board, on realised data. DEC-0006's current portfolio call is ITERATE on distribution."
 
 # §10.4 — prioritization only, never authorizes. Score = Σ(weight × score) / 5, threshold 60.
+# Adjudicated by CEO in DEC-0006 (2026-09-28). This is the set of record; earlier CPO revisions
+# scoring 56.6, 63.2 and 65.2 are superseded.
 scoring:
   user_pain:        { score: 4, weight: 15, evidence: "E1, E2 — documented category failure at 10 MB; whole content market on the query" }
-  demand_evidence:  { score: 4, weight: 20, evidence: "E1, E2, E3 — three independent signals; not 5 because no search-volume figures or user interviews were obtained" }
-  competition_inv:  { score: 3, weight: 10, evidence: "Inverse of this record's own competition_strength: 3 (6 - 3). ~2.5M users across five undifferentiated formatters and none does the large-file job, but the category is crowded and ClearJSON is entering on the privacy axis. An earlier revision scored this 4; corrected to stay consistent with competition_strength." }
-  distribution:     { score: 2, weight: 15, evidence: "E5 — 3 users after 8 days live; no launch executed; CWS search ranking favours 2M-user incumbents. This is the weak spot." }
-  monetization:     { score: 2, weight: 15, evidence: "Q10 — free, no provider, no pricing decision; one comparable (Dadroit), no willingness-to-pay signal" }
-  dev_cost_inv:     { score: 5, weight: 5,  evidence: "Q11 — product already shipped; proposed step is listing text + telemetry wiring" }
-  maintenance_inv:  { score: 3, weight: 10, evidence: "Q12 — DuckDB-WASM/jq-web/Monaco, 12.07 MiB, MV3 churn" }
-  defensibility:    { score: 3, weight: 5,  evidence: "Q08 — real head start, replicable; no network effect or data moat" }
-  security_risk_inv: { score: 4, weight: 3,  evidence: "Q13 — nothing collected, no default host permissions; optional debugger is the exposure" }
-  platform_risk_inv: { score: 2, weight: 2,  evidence: "Q13 — single store, and the two optional permissions review scrutinises most" }
-  total: 63.2
+  demand_evidence:  { score: 4, weight: 20, evidence: "E1, E2, E3 — three independent signals; ACCEPTED by CEO as genuine third-party demand evidence (DEC-0006). Not 5 because no search-volume figures or user interviews were obtained." }
+  competition_inv:  { score: 3, weight: 10, evidence: "Inverse of this record's own competition_strength: 3 (6 - 3). CEO conceded 3 against its own draft of 2 (DEC-0006), because the 'CWS ranking favours 2M-user incumbents' fact is already scored under distribution and counting it twice is a scoring error." }
+  distribution:     { score: 2, weight: 15, evidence: "E5 / q07 — 3 users after 8 days live; no launch executed; CWS search ranking favours 2M-user incumbents. This is the weak spot and what this cycle attacks." }
+  monetization:     { score: 1, weight: 15, evidence: "q08 — §10.4's missing-evidence rule is mechanical: free, no provider, no pricing decision, no willingness-to-pay signal ⇒ 1. One comparable (Dadroit) is evidence somebody else monetizes the job, not evidence about ours. HELD at 1 by DEC-0006; an earlier revision's 2 is withdrawn." }
+  dev_cost_inv:     { score: 5, weight: 5,  evidence: "q09 — product already shipped; proposed step is listing text + telemetry wiring" }
+  maintenance_inv:  { score: 3, weight: 10, evidence: "q09 — DuckDB-WASM/jq-web/Monaco, 12.07 MiB, MV3 churn. Self-penalising correction from 4, accepted by DEC-0006." }
+  defensibility:    { score: 3, weight: 5,  evidence: "q06 — real head start, replicable; no network effect or data moat" }
+  security_risk_inv: { score: 4, weight: 3,  evidence: "q12 — nothing collected, no default host permissions; optional debugger is the exposure" }
+  platform_risk_inv: { score: 2, weight: 2,  evidence: "q11/q13 — single store, and the two optional permissions review scrutinises most. Self-penalising correction from 3, accepted by DEC-0006." }
+  total: 60.2         # 4/4/3/2/1/5/3/3/4/2 → 301 weighted → 301/5 = 60.2
   threshold: 60
+  verdict: marginal   # NOT "pass". 0.2 above the line.
   note: >
-    Clears the threshold, but barely, and the two lowest scores — distribution 2 and monetization 2
-    — are exactly what this cycle's work must move. Read that as "proceed narrowly and measure",
-    not "this is a strong opportunity".
+    MARGINAL, NOT A PASS. 60.2 against a threshold of 60 is a 0.2-point margin, and on this set a
+    one-point DOWNWARD move in any one of nine of the ten criteria flips the verdict to fail. A
+    number that nine independent single-point judgements can cross is not resolving anything.
+    Recording it as a pass would be reading the instrument past its resolution.
 
-    SCORE HISTORY AND SENSITIVITY — read before relying on the PASS. The 2026-09-24 revision of
-    this record scored 56.6 and recommended G2 FAIL. This revision scores 63.2 and recommends
-    G2 PASS. The move is not a re-weighting: it comes from evidence found after the first pass
-    (E3, the August 2026 trust shock, raised demand_evidence 3 -> 4; the Dadroit comparable raised
-    monetization 1 -> 2), and two risk scores were lowered, not raised, in the same revision
-    (maintenance_inv 4 -> 3, platform_risk_inv 3 -> 2). A FAIL that becomes a PASS across revisions
-    by the same author deserves suspicion, so the sensitivity is stated explicitly rather than left
-    for the reader to compute:
-      * as scored:                                    63.2  PASS
-      * if demand_evidence is 3, not 4:               59.2  FAIL
-      * if user_pain is 3, not 4:                     60.2  PASS by 0.2
-    One reasonable downgrade of demand_evidence flips the gate. Treat the PASS as conditional on
-    accepting E1-E3 as genuine third-party demand evidence. If CEO does not accept them at that
-    strength, this is a G2 FAIL and should be archived with a learning note, not argued up.
+    CAVEAT ON THE INSTRUMENT. Five §10.4 scores were derived from the same evidence base within two
+    days — 56.6 (51bc074, the pushed PR), 58.2 (CEO first pass), 60.2 (CEO final, this set), 63.2
+    (d9d4956) and 65.2 (d51812b). The spread is 8.6 points and the threshold of 60 sits inside it:
+    three of the five say fail, two say pass. That spread is a property of the rubric at this
+    altitude, not of the evidence, which did not change between the last four derivations.
+
+    WHAT MOVED, AND WHY IT IS NOT A RE-WEIGHTING. demand_evidence 3 → 4 on evidence found after the
+    first pass (E3, the August 2026 trust shock, plus the E2 content market); competition_inv
+    4 → 3 and maintenance_inv 4 → 3 and platform_risk_inv 3 → 2 are all self-penalising corrections
+    against facts already in the record; monetization 2 → 1 is a correction DOWNWARD, applying
+    §10.4's mechanical missing-evidence rule that the earlier 2 had softened. The net of a
+    self-penalising correction set is still only 0.2 above the line.
+
+    This score does not authorize anything and is not the deciding instrument for OPP-0001 — see
+    the `gates:` block. §10.4 ranks candidate products competing for a build slot; JSON Workbench's
+    build already shipped.
 
 recommended_scope:
-  gate_recommendation: "G1 PASS, G2 PASS (reframed). Recommend to CEO for G3; CPO cannot self-approve (AGENTS.md Forbidden)."
+  gate_recommendation: >
+    No G3 recommendation is made — G3 is not applicable (see `gates:`). The live-product
+    disposition per DEC-0006 is ITERATE on distribution, with G9 (2026-10-20) as the next gate and
+    G8 completion (telemetry) as its blocker.
   smallest_validated_first_step:
     - id: S1
       what: "Store-listing keyword rewrite: extend the title beyond the bare product name and rewrite the 132-char short description to lead with the terms the E2 audience searches (large JSON file, JSONL, NDJSON). Description body and media stay as they are — they are already correct."
-      why: "Q07. Zero code, zero permission change, zero review risk, reversible in one listing update. It is the only change that attacks the actual constraint."
-      measures: "Falsifier (a): weekly new installs, pre/post, 28 days."
+      why: "q07. Zero code, zero permission change, reversible in one listing update. It is the only change that attacks the actual constraint."
+      status: "Draft + PR APPROVED NOW under DEC-0003 (in flight on APP-34). PUBLISHING requires a board G7 approval carrying the listing diff."
+      measures: "The binding falsifier in q14: weekly CWS impressions, 4 weeks after vs. 4 weeks before, must at least double. Installs secondary."
       owner_after_approval: "Builder (listing data) / Growth (copy)"
     - id: S2
       what: "Ship `app_installed` and `feature_used` telemetry via appforge-kit, opt-in and content-free, keeping `data_collection.collected` honest and the default install free of host permissions."
-      why: "Q01/Q14 and master plan §34 steps 13-15, which cannot pass without it. Until this ships, NO activation claim about this product is falsifiable — including the founder's."
-      measures: "Falsifiers (b) and (c) become measurable at all."
+      why: "This is the unmet half of G8 (DEC-0006), not a growth add-on. Until it ships, no activation claim about this product is falsifiable — including the founder's — and G9 cannot be evaluated at all."
+      status: "Escalated to CTO to scope as G8 completion work."
+      measures: "Falsifiers (b) and (c) in q14 become measurable at all."
       owner_after_approval: "CTO (design, privacy review) → Builder"
-      hard_constraint: "Must not weaken the privacy claim (Q13). If the only honest telemetry is too weak to answer (b), say so and change the question — do not change the claim."
+      hard_constraint: "Must not weaken the privacy claim (q12). If the only honest telemetry is too weak to answer (b), say so and change the question — do not change the claim."
     - id: S3
       what: "One distribution post into the post-scandal audience (DEV / r/dataengineering), using the drafts already sitting unexecuted in `.claude/launch/`."
       why: "E3 — a self-identified audience with our exact criteria list, reachable at no cost."
-      measures: "Referral share of falsifier (a)."
+      status: "DEFERRED until the S1 impressions read closes. It is deliberately excluded from the q14 falsifier so it cannot confound the measurement."
+      measures: "Measured separately after the impressions window, not inside it."
       owner_after_approval: "Growth. CPO must not publish externally (AGENTS.md Forbidden)."
   explicitly_out_of_scope:
     - "A first-run tutorial, tooltip or onboarding flow. It already shipped in 0.2.0 ('Try with sample data', 2026-09-23) and we have no instrument to tell whether it works. Building a second one now would be guessing twice."
-    - "Any pricing or paid tier (Q10)."
+    - "Any pricing or paid tier (q08)."
     - "New product surface of any kind — maintenance complexity 3 and policy risk 3 both argue against adding any."
-  kill_criteria_pre_registered: "See q14 (a), (b), (c). To be locked into the G3 record before any build work starts."
+    - "Any further re-derivation of the §10.4 score. It has been derived five times across an 8.6-point spread and DEC-0006 settles it at 60.2/marginal."
+  kill_criteria_pre_registered: >
+    The binding one: weekly CWS impressions, 4 weeks after the listing change vs. the 4 weeks
+    before, must at least double. Installs are a secondary read. If they do not double, the
+    "discovery is a copy problem" hypothesis is dead and that is recorded as a DEC rather than
+    iterated on. Falsifiers (b) activation and (c) retention are pre-registered in q14 and become
+    measurable once telemetry completes G8. Pre-registered now; not to be moved later.
 
 open_questions_for_ceo:
-  - "The canonical §9 disproof list is not in any repo artifact. Confirm the 14 reconstructed above, or supply the real list so the answers can be re-mapped before G3."
-  - "The reframe changes what the founder asked for. Approving G2 means accepting 'discovery + instrumentation' in place of 'first-run + listing', and deferring the first-run hypothesis until S2 can test it."
-  - "S2 (telemetry) touches the privacy claim that is currently the product's sharpest differentiator (Q13). CTO should own that design before Builder is committed."
+  - status: resolved
+    question: "The canonical §9 disproof list is not in any repo artifact — confirm the reconstruction or supply the real list."
+    answer: "RESOLVED by DEC-0007: the reconstruction in research/opportunities/DISPROOF-CHECKLIST.md is ratified as canonical. This record's answers are re-mapped onto its keys verbatim (APP-49), with q13 written for the first time. No caveat about 'complete against the reconstruction rather than §9' is needed or retained."
+  - status: resolved
+    question: "The reframe changes what the founder asked for — approving it means accepting 'discovery + instrumentation' in place of 'first-run + listing'."
+    answer: "RESOLVED by DEC-0006: the reframe is accepted, and the gating question is moot because OPP-0001 is reclassified onto the live-product path. First-run work is deferred until S2 can test it."
+  - status: open
+    question: "S2 (telemetry) touches the privacy claim that is the product's sharpest differentiator (q12), and it is now on the critical path as the unmet half of G8."
+    owner: cto
+    note: "CTO owns the design before Builder is committed. Open because the scoping has not been delivered; G9 on 2026-10-20 depends on it."
+  - status: open
+    question: "The S1 listing rewrite cannot publish without a board G7 approval carrying the listing diff."
+    owner: ceo
+    note: "CEO to route to board. Until it publishes, the q14 impressions window has not started."
 
 related_decisions:
-  - "DEC-0003 — JSON Workbench runs the first end-to-end factory loop; this record is the OPP that loop starts from."
+  - "DEC-0003 — JSON Workbench runs the first end-to-end factory loop; this record is the OPP that loop starts from, and the authority S1's draft+PR proceeds under."
   - "DEC-0004 — $100/month cap; the proposed scope is deliberately inside it (≈$15 AI + 0.5 builder weeks)."
+  - "DEC-0006 — OPP-0001 is mis-gated, not mis-scored: reclassified to the live-product path, score settled at 60.2/marginal, G3 not applicable, next gate G9, telemetry relocated to G8 completion, and the impressions kill criterion settled."
+  - "DEC-0007 — ratifies research/opportunities/DISPROOF-CHECKLIST.md as canonical; the `disproof:` keys above are verbatim from it."
+  - "DEC-0008 — declines to recalibrate §10.4; a free product's ceiling is 88 against a threshold of 60, so 'the rubric structurally blocks every free product' is arithmetically false."

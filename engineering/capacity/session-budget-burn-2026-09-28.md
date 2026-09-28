@@ -108,6 +108,33 @@ individually — the wrong trade made at the wrong layer.
 The missing primitive is a **company-wide concurrent-run ceiling**. That is an upstream platform
 gap, recorded as `DEBT-0002`.
 
+## Finding 2b — routine cadence is already staggered and was not involved
+
+APP-45 paired cadence with concurrency as the free mitigation ("staggering routines ... is free and
+may be sufficient on its own"). Checked against the live routine set rather than assumed:
+
+| Routine | Trigger | Schedule (Asia/Kolkata) | Concurrency policy |
+|---|---|---|---|
+| Daily Portfolio Report | schedule | `0 7 * * *` | `coalesce_if_active` |
+| Weekly Board Narrative | schedule | `30 7 * * 1` | `coalesce_if_active` |
+| Weekly Portfolio Review | schedule | `0 9 * * 1` | `coalesce_if_active` |
+| Opportunity Scouting Batch | schedule | `0 10 * * 3` | `coalesce_if_active` |
+| Experiment Status Review | schedule | `0 10 * * 5` | `coalesce_if_active` |
+| GitHub CI/PR notifications | webhook | event-driven | `always_enqueue` |
+
+**There is nothing to stagger.** The five scheduled routines are already spread across different
+hours and different days, no two fire in the same minute, and every one is `coalesce_if_active` — so
+a routine cannot pile a second run onto an agent that is still working. The heaviest moment is
+Monday 07:30 and 09:00, an hour apart.
+
+Decisively: **the session-limit failures happened between 03:38 and 04:51, when no scheduled routine
+fires at all.** The load came from webhook, assignment and retry wakes. Restaggering the cron
+entries would not have moved a single one of the failed runs, so cadence is **ruled out** — not
+deferred, not blocked, simply not the cause.
+
+This leaves the `always_enqueue` webhook routine as the only cadence-shaped risk, and it is the
+correct policy for CI notifications: dropping a CI failure is worse than queuing one.
+
 ## Finding 3 — the dominant waste is not the ceiling at all
 
 `cancelled` is the single largest consumer in the post-fix window: **7 runs, 752K input tokens,

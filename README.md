@@ -70,7 +70,7 @@ are hand-maintained.
   > which implies enforcement it does not have. The corrected header is written and reviewed but
   > cannot be pushed by an agent: the `appforge-agents` App has no `workflows: write` permission, so
   > GitHub refuses any agent push that touches `.github/workflows/`. Applying it is a founder act —
-  > tracked on APP-134.
+  > tracked on APP-138.
 - `.github/workflows/prune-active.yml` (weekly schedule + manual dispatch): prunes `_active/`.
 
 ## Rulings made while scaffolding (P0-07)

@@ -19,7 +19,8 @@ risk: "A prompt-injected agent that decides to `cat ~/.ssh/id_rsa` or read other
 owner: founder
 date: "2026-09-26"
 review_date: "2027-03-26"
-status: active
+status: reviewed
+review_outcome: "Reviewed 2026-09-28 under DEC-0016 (APP-73, board approval e028e2f9). The DECISION stands unchanged: no separate `appforge` OS user. One characterisation in this record is WRONG and is corrected by DEC-0016. The comparison table's `Blast radius of a compromised agent` row reads `Bounded by what the agent's GitHub App installation token can do`; that is false. The blast radius is the OS uid. A GitHub App token bounds only what an agent reaches over the GitHub API; it bounds nothing about this host, where the same uid can read `master.key`, `decision-signing.key` and the embedded Postgres data dir, and can write any issue in this company through the control plane with no credential at all (`deploymentMode: local_trusted`). Read `Security boundary` and `summary` the same way: credential scoping is a real hygiene control and it is NOT the security boundary. This record's own `reason` and `risk` fields already said the OS does not stop a same-uid process, so the prose was right and the table over-promised. `decisions/` is append-only, so the table is left in place and corrected here rather than edited. See DEC-0016 for the standing position and its revisit trigger, and DEC-0013 for the credential-path instance of the same defect."
 tags: [infrastructure, security, deployment, host]
 summary: "No separate appforge OS user — agents run as the founder's own user; isolation comes from credential scoping (no GH_TOKEN, no personal Claude profile) rather than OS permissions."
 ---

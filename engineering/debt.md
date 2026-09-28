@@ -35,8 +35,10 @@ window fails on arrival.
 ### Why it costs something
 
 A quota-failed run re-reads its full context before the provider rejects it, so the retry is not a
-cheap no-op. Measured over the 2026-09-27/28 history: **11 quota-failed runs burned 834K input
-tokens and returned nothing**, at 37K–139K input tokens per attempt. The scheduler spends shared
+cheap no-op. Measured over a full 24h window (2026-09-27T09:27Z → 2026-09-28T09:27Z): **25
+quota-failed runs burned 1,035K input tokens and returned nothing**, of which **5** were re-queued
+under a non-quota reason rather than waiting for the reset. (An earlier, shorter window put this at
+11 runs / 834K; the defect is not decaying.) The scheduler spends shared
 session budget to buy guaranteed failures, and the tokens it spends keep the window closed longer.
 
 A quota failure is categorically unlike the failures the scheduler is tuned for: it is retryable at

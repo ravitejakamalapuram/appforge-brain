@@ -4,4 +4,4 @@
 
 | ID | Title | Tags | Status | Summary |
 |---|---|---|---|---|
-| [OPP-0001](./OPP-0001-json-workbench-activation.yaml) | JSON Workbench: near-zero reach — the binding constraint is discovery, not activation | `json-workbench` `growth` `reach` `discovery` `chrome-web-store` | running | Activation cannot be measured (no telemetry, n=3) and 4 of the 5 listing gaps already shipped; the real binding constraint is discovery. G1 pass, G2 fail (score 56.6 < 60). Recommended first step: a z |
+| [OPP-0001](./OPP-0001-json-workbench-activation.yaml) | JSON Workbench: the binding constraint is reach on the large-JSON job, not first-run activation | `json-workbench` `growth` `activation` `discovery` `chrome-web-store` `disproof` | running | Reframed after research. The listing-gap and first-run hypotheses are both disproved: the listing was fixed in 0.1.1/0.2.0 and a first-run affordance ("Try with sample data") already shipped on 2026-0 |

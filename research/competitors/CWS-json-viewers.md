@@ -52,6 +52,45 @@ Search 2 returned JSON Workbench's own GitHub repo as the top substantive hit; t
 were DuckDB/JSONata library and blog content, not browser extensions. Treat "none found" as
 "none found by three searches", not as proof of absence.
 
+## The August 2026 trust shock (added 2026-09-28)
+
+A JSON Formatter extension with 200K+ users went closed-source in mid-2026, partnered with
+GiveFreely, and began injecting geolocation tracking and donation popups into checkout pages. The
+response was mass uninstalls. A developer then tested "every JSON viewer after the formatter
+scandal" against four criteria — **fully open source + handles large files + privacy-guaranteed +
+feature-complete** — found that none of the five he tested met all four, and built his own
+(**ClearJSON**, "zero network requests for free users").
+
+Source: <https://dev.to/wayknow123/i-tested-every-json-viewer-after-the-formatter-scandal-heres-what-i-found-4dcl>
+(2026-08-06, edited 2026-08-17), retrieved 2026-09-28.
+
+Two things follow, and they cut in opposite directions:
+
+- **For us.** That four-criteria list is JSON Workbench's positioning, written independently, by
+  someone who is not us, six weeks *before* JSON Workbench was public (first release 2026-09-20).
+  It is the cleanest available evidence that the positioning is demand-shaped rather than
+  founder-shaped.
+- **Against us.** ClearJSON now exists, occupies the privacy axis, and launched with an audience
+  already attached to a widely-read post. Competing on trust alone is late. Competing on trust
+  **and** the large-file capacity no incumbent has (see the benchmark above) is still open.
+
+Also from that post: the open-source JSON Formatter fork (arnav-kr) "starts to struggle" above
+~5 MB, and JsonDiscovery is the category's highest-rated at 4.88 — neither closes the large-file
+gap.
+
+## Where the demand is currently served (added 2026-09-28)
+
+Searching the user's own words — "how to open a large JSON file" — returns a sustained commercial
+content market (Dadroit, Pandia, alljsontools, openformatter, several DEV Community posts). Every
+one of those answers points **out of the browser**: jq on the command line, VS Code, Notepad++, or
+a native desktop viewer. The recurring numbers quoted across that content are ~10 MB before
+browser tools slow and ~50 MB before they crash — the same thresholds the FormatArc benchmark
+measured.
+
+Read together with the benchmark: the demand is real and commercially served, and no one
+recommends a Chrome extension for it because until 2026-09-20 none could do it. That is the gap
+JSON Workbench occupies and does not currently say out loud in its store listing.
+
 ## Read-through for positioning
 
 The category is enormous (~2.5M users across five listings) and completely undifferentiated —

@@ -6,7 +6,7 @@ status: draft # draft|awaiting_approval|running|readout|stopped
 owner: growth
 opened: "2026-09-28"
 source_issue: APP-34
-decision_ref: "DEC-0006 (CEO, 2026-09-28) approves S1; APP-31 portfolio call -> APP-34 HANDOFF: Growth"
+decision_ref: "DEC-0006 (CEO, 2026-09-28) approves the DRAFT only; APP-31 portfolio call -> APP-34 HANDOFF: Growth; CEO reply on APP-34 2026-09-28 routes publish through a G7 board approval raised by CTO"
 opportunity: research/opportunities/OPP-0001-json-workbench-activation.yaml
 summary: >
   Two candidate listing titles and two candidate short descriptions for the live CWS item, drafted
@@ -80,6 +80,18 @@ short_description_candidates:
 
 recommended_pairing: "T1 + S1 (job-led, JSONL-weighted). T1 + S2 if 'formatter' must appear."
 
+recommendation_corroborated: >
+  The CEO's 2026-09-28 reply on APP-34 independently argues the same brief this draft was written
+  to: FormatArc's 2026-07-11 benchmark found only 2 of 6 CWS extensions format a 10 MB JSON file
+  and none format 50 MB, with the ~2M-user category leader giving up at 10 MB, so the unserved job
+  is large-file/JSONL and the 45 characters should be spent there, job first rather than feature
+  list. That is precisely the T1 + S1 thesis and it strengthens T1 against T2 — T2 spends scarce
+  characters re-entering the "formatter" query the benchmark shows the incumbent already owns at
+  small file sizes, which is the one size range where we have no advantage. No copy change follows
+  from it. NOTE the benchmark still may NOT appear as listing text: it is a comparative claim about
+  named third-party products and is not traceable to product-facts.yaml. It belongs on the landing
+  page and in launch posts. See claim_traceability.deliberately_omitted.
+
 not_keyword_stuffing: >
   Every term in every candidate names a file format the product actually reads or a capability it
   actually ships, each appears once, and each title still reads as a product name followed by one
@@ -123,6 +135,38 @@ measurement:
         figure must be captured from the dashboard, NOT estimated. Without it the experiment has no
         denominator and the kill criterion cannot be evaluated.
       status: outstanding
+      owner_resolved: >
+        APP-47 (Analyst) owns capturing this. Raised by the CEO on APP-34, 2026-09-28. It must land
+        BEFORE the change publishes; a baseline reconstructed afterwards is not a baseline.
+  baseline_window_defect:
+    severity: "blocks a readable result, not the draft"
+    raised_by: "CEO on APP-34 (2026-09-28), sharpened here by Growth"
+    finding: >
+      The product went live 2026-09-20 (CEO's figure; NOT recorded in product-facts.yaml — see
+      below). As of 2026-09-28 that is 8 days of live data, so a literal "4 weeks immediately
+      before" window is roughly 20 days of pre-launch zero plus 8 days of launch-week traffic.
+      Neither slice of that is a usable denominator, and they fail in OPPOSITE directions:
+    if_the_full_4_weeks_are_averaged: >
+      ~20 days of structural zero deflate the weekly mean, so "double the baseline" becomes trivially
+      easy and the test returns a PASS that means nothing. This is the more dangerous failure,
+      because it confirms the hypothesis without evidence and sends us on to spend on S3.
+    if_only_the_live_weeks_are_used: >
+      CWS gives new items a temporary visibility boost that decays on its own. Measuring against a
+      launch-spike baseline makes "double" artificially hard, and a FAIL would then kill a hypothesis
+      that was never actually tested — the exact outcome the kill criterion is supposed to prevent.
+    growth_recommendation: >
+      Do not start the clock yet. Define the baseline as the last N COMPLETE weeks of post-launch-
+      decay steady state, and do not publish until at least two consecutive such weeks exist. That
+      costs a short delay and buys the only version of this experiment that can be read either way.
+      Growth does not set N — that is Analyst's call on APP-47, from the actual weekly series. If
+      Analyst finds no defensible steady-state window is reachable in reasonable time, then the
+      impressions-doubling test is not runnable on this product and that conclusion belongs to the
+      CEO BEFORE publish, not in a readout four weeks later.
+    launch_date_traceability: >
+      2026-09-20 is the CEO's figure and is load-bearing for the whole window calculation, but
+      product-facts.yaml records only published_version 0.1.0 and last_verified 2026-09-24 — no
+      launch date. CPO/CTO should land the store-verified first-publish date in product-facts.yaml.
+      Growth is not treating an issue-comment date as a product fact.
   confound_to_control:
     - >
       OPP-0001 S3 (a DEV / r/dataengineering distribution post) must NOT run inside the 4-week
@@ -135,7 +179,11 @@ measurement:
       readout; do not claim a clean copy-only attribution if a release rode along.
 
 kill_criterion:
-  authority: "DEC-0006 (CEO, 2026-09-28) — pre-registered there, and restated in APP-34."
+  authority: >
+    DEC-0006 (CEO, 2026-09-28), pre-registered there and restated in APP-34. RECONFIRMED verbatim by
+    the CEO on APP-34 on 2026-09-28: weekly impressions, 4 weeks after vs. 4 weeks before, must at
+    least double; installs are a secondary read only. OPP-0001 q14(a)'s "triple installs in 28 days"
+    is discarded by that ruling, not merely superseded.
   governing_text: >
     If weekly CWS impressions do not at least double within 4 weeks of the change going live, the
     "discovery is a copy problem" hypothesis is dead and the constraint is off-store distribution.
@@ -155,7 +203,7 @@ kill_criterion:
       wrong and the problem is demand, not discovery -> archive with a learning note;
     differences: ["metric: impressions vs. new installs", "threshold: 2x vs. 3x", "treatment: copy-only vs. listing rewrite PLUS one distribution post"]
     resolution: >
-      Already adjudicated, and Growth is not reopening it. DEC-0006's "Measurement, corrected"
+      CLOSED 2026-09-28 — the CEO discarded q14(a) outright on APP-34. Growth is not reopening it. DEC-0006's "Measurement, corrected"
       section supersedes q14(a) explicitly and on exactly these three points: impressions rather
       than installs, because the hypothesis is about reach and installs conflate reach with appeal;
       doubling rather than tripling; and S3 (the distribution post) deferred so the two
@@ -206,21 +254,26 @@ publish_path:
       it - CTO/Release does.
 
 gates:
-  - "CEO selects the title/short-description pairing. Growth drafts; Growth does not choose and does not publish."
+  - "CEO selects the title/short-description pairing. Growth drafts; Growth does not choose and does not publish. STILL OPEN as of 2026-09-28."
   - >
-    S1 itself is already APPROVED by DEC-0006 as LOW-risk growth-cycle work under DEC-0003 — it
-    does NOT wait on a board G3, and OPP-0001 failing G2 at 58.2 does not block it. APP-34 describes
-    a board approval gate for publishing; DEC-0006 is the narrower and later ruling and is read as
-    satisfying it for these two fields, bounded to listing text on an already-published product with
-    no code, permission or data-collection change. If the CEO reads that differently, say so before
-    the PR is raised in json-workbench.
+    CORRECTED 2026-09-28 by the CEO on APP-34. An earlier revision of this record read DEC-0006 as
+    satisfying APP-34's board-approval gate for these two fields. That reading is withdrawn. The CEO
+    ruled explicitly that publishing is not the CEO's to approve: §10.3 G7 names "listing" in the
+    board-approval diff. What DEC-0006 approves is the DRAFTING and the PR — LOW risk, ~0.1
+    builder-weeks, under DEC-0003 — and nothing beyond that.
+  - >
+    Publish path, as ruled: Growth's copy -> Builder applies it -> CTO raises a G7 BOARD APPROVAL
+    carrying the listing diff -> publish against a recorded approval id. The CEO's instruction is that
+    nobody shortcuts G7 on the grounds that the change "is only text". Growth agrees and will not
+    treat a copy-only diff as exempt.
   - >
     CTO/Release dispatches `.github/workflows/listing.yml`; the founder completes the dashboard edit
     and Submit for review. Never Growth, never the CEO directly.
 
 next_steps:
-  - "CEO: pick T1+S1, T1+S2 or T2+S1, and confirm the DEC-0006 reading in `gates` covers publishing these two fields."
-  - "Founder: supply R1 (4-week impressions + installs baseline) from the dashboard."
+  - "CEO: pick T1+S1, T1+S2 or T2+S1. STILL OPEN — the 2026-09-28 reply settled measurement, sequencing and the approval path, but did not name a pairing."
+  - "CEO: rule on publish_path. STILL OPEN. The ruled route (Builder edits chrome-store/store.config.json) works for the short description but CANNOT carry the title, which lives in the packaged manifest."
+  - "Analyst (APP-47): supply R1 AND rule on `measurement.baseline_window_defect` — whether a readable pre-period is reachable at all — before anything publishes."
   - "Then: a one-file PR in json-workbench (store.config.json shortDescription, plus manifest+store.config name if the title is approved), owned by Builder, reviewed by CTO."
   - "CPO: amend OPP-0001 q14(a) to match DEC-0006 so the two records stop disagreeing."
   - "4 weeks after go-live: joint readout with Analyst against the kill criterion."

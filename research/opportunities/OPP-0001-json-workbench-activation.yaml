@@ -1,28 +1,298 @@
 id: OPP-0001
-title: "JSON Workbench: low activation / near-zero reach despite being live"
-tags: [json-workbench, growth, activation, chrome-web-store]
+title: "JSON Workbench: near-zero reach — the binding constraint is discovery, not activation"
+tags: [json-workbench, growth, reach, discovery, chrome-web-store]
 product_id: json-workbench
 status: running   # planned|running|stopped|completed
-summary: >
-  JSON Workbench is published on CWS (0.1.0 live, 0.2.0 pending review) but has 0 reviews and very
-  few users; the listing has real, fixable gaps and no launch has happened yet.
-context: >
-  As of 2026-09-24: item higmlhleblpmdogjccpmjlnilpmhohal, 0 reviews. Listing does not use its
-  full title length, doesn't mention JSONL/jq, has no screenshots showing the real differentiators
-  (DuckDB SQL panel, Diff/JSON Patch), no promo video, and is missing a Chrome/Edge 120+ note.
-  Launch-kit drafts already exist in `.claude/launch/` (positioning, launch posts, a 4-week plan,
-  in-product growth ideas) but were never executed.
-proposed_actions:
-  - "Listing overhaul: title, summary, description, 5 new screenshots (DuckDB SQL, jq/JSONata, Diff/JSON Patch, big-file handling, privacy/no-host-permissions)"
-  - "60-90s demo video + a written tutorial (\"Query a 500MB JSONL with SQL in your browser\")"
-  - "Distribution: Show HN, r/dataengineering, r/webdev, r/commandline, Product Hunt, awesome-lists, newsletters"
-  - "Product hooks: shareable pipeline links, \"Open in JSON Workbench\" handoff, CLI/VS Code crossover, tasteful rating prompt (already shipped in 0.2.0)"
-  - "Measurement: CWS weekly users/installs/ratings, GitHub stars, npm downloads, UTM on hub links; decide on opt-in privacy-preserving telemetry (none today)"
-scoring:
-  # §10.4: prioritization only, never authorizes.
-  reach: high        # live product, existing launch-kit drafts reduce time-to-execute
-  effort: medium      # video production is the long pole
-  confidence: medium  # differentiators are real (DuckDB/Diff) but unvalidated with real users yet
 owner: cpo
 opened: "2026-09-24"
-source: ".claude/json-workbench-growth-brief.md"
+revised: "2026-09-28"
+revision_note: >
+  Rewritten 2026-09-28 by CPO under Paperclip issue APP-26 (master plan §34 acceptance test,
+  steps 1-3). The 2026-09-24 version asserted "low activation / weak listing". Research
+  disconfirmed both halves of that framing: four of its five listing gaps have since shipped, and
+  activation is not measurable at all. Re-framed around what the evidence actually supports, and
+  rewritten into the `Opportunity` shape of master plan §29d. The original body is preserved in
+  git history and superseded, not deleted.
+
+summary: >
+  Activation cannot be measured (no telemetry, n=3) and 4 of the 5 listing gaps already shipped;
+  the real binding constraint is discovery. G1 pass, G2 fail (score 56.6 < 60). Recommended first
+  step: a zero-code CWS title + short-description rewrite, measured on dashboard impressions.
+
+# ---------------------------------------------------------------------------
+# §29d Opportunity
+# ---------------------------------------------------------------------------
+
+problem: >
+  JSON Workbench is live on the Chrome Web Store and has 3 users. The stated problem on the
+  intake ticket was low install-to-activation conversion. That problem cannot currently be
+  observed: the extension ships no telemetry by design (docs/TELEMETRY.md — "Telemetry is
+  intentionally not enabled in the current release"), and the CWS dashboard reports installs and
+  weekly users, never whether anyone completed a pipeline run. At n=3 users and 1 rating there is
+  also no sample from which an activation rate could be inferred even if it were instrumented.
+  What IS observable is the layer above it: essentially nobody is reaching the listing. No launch
+  has been executed, the product has no audience, and its store listing is written in words that
+  a person with the problem it solves would not search for. The real, addressable problem is
+  discovery.
+
+target_user: >
+  A developer or data engineer who has a JSON/JSONL/NDJSON payload too large or too structured to
+  read in a generic formatter — API response dumps, exported event logs, database extracts — and
+  who currently leaves the browser to deal with it (jq in a terminal, a desktop viewer, a
+  scratch script, or pasting into a hosted tool they are not supposed to paste customer data into).
+
+frequency: weekly   # daily|weekly|monthly|rare
+# Basis: this is a debugging/inspection task, not a continuous workflow. Stated as an estimate,
+# not a measurement — see disproof Q2. No first-party frequency data exists.
+
+existing_workarounds:
+  - "jq at the terminal (requires leaving the browser, and the payload has to be saved first)"
+  - "A generic CWS formatter — works until roughly 10 MB, then fails (see competitor file)"
+  - "Hosted web tools (JSON Crack, JSON Hero, jsonformatter.org) — blocked by policy for anything containing customer data"
+  - "A native desktop viewer such as Dadroit for multi-GB files"
+  - "Ad-hoc Python/Node scripts"
+
+competitors:
+  - { name: "JSON Formatter", url: "https://chromewebstore.google.com/detail/json-formatter/bcjindcccaagfpapjjmafapmmgkkhgoa", users: 2000000, rating: 4.3 }
+  - { name: "JSON Viewer Pro", url: "https://chromewebstore.google.com/detail/json-viewer-pro/eifflpmocdbdmepbjaopkkhbfmdgijcc", users: 300000, rating: 4.6 }
+  - { name: "JSONView", url: "https://chromewebstore.google.com/detail/jsonview/chklaanhfefbnpoihckbnefhakgolnmc", users: 100000 }
+  - { name: "JSON Viewer (teocci)", url: "https://chromewebstore.google.com/detail/json-viewer/aimiinbnnkboelefkjlenlgimcabobli", users: 100000 }
+  - { name: "JSON Lite", url: "https://chromewebstore.google.com/detail/json-lite/mdenmbdenmfgnpmnhlgnnmepgcnnlmgf", users: 20000 }
+  - { name: "JSON Crack", url: "https://chromewebstore.google.com/detail/json-crack/hbaeglefdflnhodchjiaphmheaojikhh" }
+competition_strength: 5   # 1-5, 5 = strongest. A 2M-user incumbent owns the generic query outright.
+
+differentiation: >
+  Two things, and only one of them is defensible. (1) Capability: no other CWS extension found in
+  three searches offers jq AND JSONata AND local DuckDB SQL AND RFC 6902 diff. (2) Large files:
+  an independent 2026-07-11 benchmark of seven extensions found only 2 of 6 could format a 10 MB
+  JSON file and none could do 50 MB; JSON Workbench's own benchmark parses 100 MB in 2.29 s and
+  500 MB in 11.82 s (parser throughput only, not full UI materialisation — docs/STATUS.md).
+  Note honestly that neither differentiator is visible from the listing's first screen, and
+  neither is what a user searching "json viewer" is looking for.
+
+distribution: >
+  Weakest link in the whole opportunity. Single channel (CWS organic search), on which we rank
+  behind a 2M-user incumbent for every generic term. No launch executed, no site traffic, no
+  audience, no inbound. Launch-kit drafts exist (`.claude/launch/`, growth brief, 4-week sprint
+  plan) and have never been run. Publisher account is capped at 5 published items and JSON
+  Workbench holds one slot (DEC-0003).
+
+monetization: "free — no monetization model exists or is proposed"
+estimated_revenue: { low: 0, high: 0, basis: "free extension; no pricing hypothesis has been formed. Per §10.4, missing evidence scores 1." }
+estimated_cost: { ai_cents: 1500, builder_weeks: 0.1 }
+# Cost is for the recommended first step only (listing text change, zero code). A telemetry
+# build-out, if later approved, is a separate and materially larger estimate.
+
+development_complexity: 1   # recommended first step is a JSON config file edit + an existing workflow dispatch
+maintenance_complexity: 2   # product is already live and maintained; growth work adds little
+security_risk: 2            # no code change; local-first, no data collected. Raised to 4+ if telemetry is ever added.
+policy_risk: 2              # listing-text change only; no new permission, no privacy-policy delta
+dependency_risk: 3          # total dependency on one channel (CWS) and its review latency
+technical_feasibility: 5    # store.config.json + .github/workflows/listing.yml are already wired
+
+# ---------------------------------------------------------------------------
+# Disproof checklist — all 14 mandatory (AGENTS.md §6.2, master plan §10.2)
+#
+# SOURCE CAVEAT: the canonical 14 questions live in "§9 of the brief", a document that is not
+# present in appforge-control, appforge-brain, appforge-kit or ~/git-personal/.claude. The master
+# plan references it (line 241) but does not reproduce it. The 14 below are reconstructed from
+# the §29d `Opportunity` field list and the §10.3 G1/G2 acceptance criteria, which between them
+# cover every field the gate checks. Flagged to the CEO as a governance gap: either the brief
+# gets committed to the brain, or this reconstruction gets ratified as canonical. Until one of
+# those happens, treat these answers as complete against the reconstruction, not against §9.
+# ---------------------------------------------------------------------------
+disproof:
+  q01_is_the_problem_real_or_only_asserted: >
+    DISCONFIRMED AS STATED. The ticket's problem ("low install-to-activation conversion") is not
+    real-or-false; it is unfalsifiable with what we have. No telemetry exists, so no activation
+    event is ever recorded. CWS supplies installs and weekly users only. With 3 users, even a
+    perfect instrument would yield no inference. The adjacent problem — near-zero reach — IS real
+    and IS observable: 3 users, 1 rating, 5 days after 0.2.0 went live on 2026-09-25.
+
+  q02_who_has_it_and_how_often: >
+    PARTIALLY ANSWERED. The target user is characterised above but not measured. `frequency:
+    weekly` is a judgement, not a finding — we have no interviews, no survey, no search-volume
+    data, and no first-party analytics. This is the single weakest answer in this checklist and
+    it should be read as an admission, not an estimate with error bars.
+
+  q03_what_do_they_do_today_and_is_it_good_enough: >
+    For payloads under ~10 MB the incumbent formatters are good enough, free, and already
+    installed — this slice is not winnable and we should stop implying it is. Above 10 MB the
+    workarounds are genuinely bad (independent benchmark: 4 of 6 extensions fail outright), and
+    the fallbacks all involve leaving the browser. That gap is where the opportunity lives.
+
+  q04_is_this_a_feature_rather_than_a_product: >
+    The PRODUCT is a product — it is live, has a 5.0 rating, and does things nothing else on CWS
+    does. But the OPPORTUNITY as written on the intake ticket ("improve first-run and listing") is
+    not an opportunity at all; it is a task list with an unverified premise attached. This is the
+    G2 criterion "feature not product? = no" answered honestly in both directions.
+
+  q05_who_already_solves_it_and_how_strong_are_they: >
+    Six competitors recorded with users/ratings in research/competitors/CWS-json-viewers.md.
+    Strength 5/5 for the pretty-print job: JSON Formatter alone has ~2,000,000 users and 2.1K
+    ratings, roughly 6× the next entrant. Strength ~1/5 for the large-file/query job: nobody
+    credible is in it on CWS.
+
+  q06_is_the_differentiation_copyable: >
+    YES, eventually — jq-WASM, JSONata and DuckDB-WASM are all off-the-shelf. There is no network
+    effect, no data moat and no switching cost. The moat is execution and integration quality plus
+    a ~12 MB WASM bundle most competitors will not want to ship. Defensibility scored 3/5, not
+    higher, for exactly this reason.
+
+  q07_how_would_anyone_ever_find_this: >
+    THE BINDING CONSTRAINT, AND IT IS BADLY ANSWERED TODAY. The listing title is "JSON Workbench"
+    — 14 of an available 45 characters, containing neither "viewer" nor "formatter", the two terms
+    the entire category is searched by. The short description leads "Inspect, transform, validate,
+    diff, and query large JSON locally", which also contains neither. A new listing with 3 users
+    has no ranking signal, so the copy is the only lever we control. No off-store distribution has
+    been attempted despite drafts existing since 2026-09-24.
+
+  q08_will_anyone_pay_and_how: >
+    NO EVIDENCE, AND NO HYPOTHESIS. The product is free with no monetization model, no comparable
+    identified, and no pricing assumption stated. Per SOUL.md, "a pricing hypothesis without a
+    comparable or a stated assumption isn't ready for a PRD" — so none is offered here rather
+    than one being invented. Scored 1/5 per §10.4's missing-evidence rule. See the rubric conflict
+    noted under `open_questions`.
+
+  q09_what_does_it_cost_to_build_and_maintain: >
+    The recommended first step is a text edit to chrome-store/store.config.json plus a dispatch of
+    the existing listing.yml workflow: no code, no package re-review, ~0.1 builder-weeks. Every
+    alternative first step considered (telemetry, onboarding rebuild, first-run tooltip) costs at
+    least an order of magnitude more and two of them are already built or unmeasurable.
+
+  q10_is_it_technically_feasible: >
+    YES, 5/5, and this is the one unambiguous green light. release.yaml already declares
+    `listing: chrome-store/store.config.json`, .github/workflows/listing.yml is committed, and
+    release-platform@v2 validates listing changes on PRs. The mechanism has been exercised (PR #12,
+    PR #15).
+
+  q11_what_policy_or_store_rules_could_kill_it: >
+    Low for the recommended step — a metadata change, no new permission, no privacy-policy delta.
+    Two live constraints to respect regardless: the publisher's 5-published-item slot cap
+    (DEC-0003), and CWS keyword-stuffing policy, which means the title rewrite must read as a real
+    product name and not a keyword list. HIGH if this ever becomes a telemetry project: that would
+    need a privacy-policy change, a store data-disclosure change, and a re-review, against a
+    product whose entire positioning is "nothing leaves your browser".
+
+  q12_what_is_the_security_privacy_exposure: >
+    Near zero for the recommended step. Worth recording for anything downstream: the extension
+    already declares two high-impact optional permissions (`debugger`, `<all_urls>`), both
+    runtime-requested and both justified in .appforge/permissions.yaml. Any growth idea that
+    touches those, or that adds a network call, inverts the product's core promise and must go to
+    the board, not to Builder.
+
+  q13_what_dependencies_could_disappear: >
+    Single-channel risk on CWS: one policy change, one review rejection or one publisher-account
+    action removes 100% of distribution. Review latency also gates every iteration (0.2.0 sat in
+    PENDING_REVIEW 2026-09-23 → live 2026-09-25). Secondary: DuckDB-WASM and jq-web are upstream
+    WASM dependencies carrying the 12.07 MiB package size. Scored 3/5.
+
+  q14_what_would_prove_us_wrong_and_did_we_look: >
+    WE LOOKED, AND WE FOUND SOME. Pre-registered disconfirmers and what the search returned:
+    (a) "the listing is weak" — LARGELY FALSE NOW. Four of OPP-0001's five 2026-09-24 gaps have
+    shipped: promo video (PR #15), five screenshots including the DuckDB SQL and diff panels
+    (PR #13/#14), the Chrome/Edge 120+ note, and JSONL/jq in the description. Only the unused
+    title length survives.
+    (b) "users don't get to a first successful run" — UNTESTABLE, and partly pre-empted: 0.2.0
+    already ships "Try with sample data", which loads a synthetic payload plus an example jq/
+    JSONata pipeline, a DuckDB query and a diff target, and runs them automatically (PR #6).
+    Building an onboarding tutorial would re-solve a solved problem.
+    (c) "the category has no demand" — FALSE. ~2.5M users across five listings.
+    (d) "the differentiators are imaginary" — FALSE, and independently corroborated by the
+    FormatArc benchmark rather than by our own claims.
+    The disconfirming evidence killed the ticket's framing. It did not kill the product.
+
+# ---------------------------------------------------------------------------
+# §10.4 scoring — prioritization only, never authorizes
+# ---------------------------------------------------------------------------
+scoring:
+  weights_source: "master plan §10.4"
+  scores:
+    user_pain:            { w: 15, s: 4, evidence: "independent benchmark: 4 of 6 extensions fail at 10 MB, none at 50 MB" }
+    demand_evidence:      { w: 20, s: 3, evidence: "~2.5M users across 5 category listings (strong, indirect); 1 rating on our own listing (no direct signal)" }
+    competition_inverse:  { w: 10, s: 2, evidence: "2M-user incumbent owns the generic query" }
+    distribution:         { w: 15, s: 2, evidence: "single channel, no ranking signal, no launch executed, no audience" }
+    monetization:         { w: 15, s: 1, evidence: "none — no model, no comparable, no hypothesis (§10.4 missing-evidence rule)" }
+    dev_cost_inverse:     { w:  5, s: 5, evidence: "config-file edit; listing pipeline already wired" }
+    maintenance_inverse:  { w: 10, s: 4, evidence: "product already live and maintained" }
+    defensibility:        { w:  5, s: 3, evidence: "unique combination on CWS, but all components are off-the-shelf" }
+    security_risk_inverse: { w:  3, s: 4, evidence: "local-first, no collection; two high-impact optional permissions already declared" }
+    platform_risk_inverse: { w:  2, s: 3, evidence: "CWS single-channel + 5-slot publisher cap (DEC-0003) + review latency" }
+  weighted_sum: 283        # 60+60+20+30+15+25+40+15+12+6
+  score: 56.6              # 283 / 5
+  threshold_to_propose_g3: 60
+  clears_threshold: false
+
+# ---------------------------------------------------------------------------
+# Gate position and recommendation
+# ---------------------------------------------------------------------------
+gates:
+  g0_discovered: pass      # OPP id, problem, source all present
+  g1_evidence: pass        # see evidence[] — 3 independent demand signals, frequency estimated (and labelled as an estimate)
+  g2_validated: fail       # score 56.6 < 60; no policy red flags; "feature not product?" = no for the product, YES for the ticket's framing
+  g3_mvp_approved: not_recommended
+
+evidence:
+  - { source: "https://formatarc.com/en/blog/chrome-extension-json-formatter/", date: "2026-07-11", claim: "Only 2 of 6 auto-formatting CWS extensions format a 10 MB JSON file; none format 50 MB. User counts for 6 extensions.", independent: true }
+  - { source: "https://chromewebstore.google.com/detail/json-formatter/bcjindcccaagfpapjjmafapmmgkkhgoa", date: "2026-09-28", claim: "~2,000,000 users, 4.3 (2.1K ratings) — category demand is large and the leader is a plain formatter.", independent: true }
+  - { source: "https://chromewebstore.google.com/detail/json-viewer-pro/eifflpmocdbdmepbjaopkkhbfmdgijcc", date: "2026-09-28", claim: "~300,000 users, 4.6 (218); description mentions no JSONL/jq/JSONata/SQL/diff/large-file support.", independent: true }
+  - { source: "https://chromewebstore.google.com/detail/json-workbench/higmlhleblpmdogjccpmjlnilpmhohal", date: "2026-09-28", claim: "Our own listing: 0.2.0 live since 2026-09-25, 3 users, 5.0 (1 rating), 12.07 MiB. CWS dashboard reported 5 users on 2026-09-27; the public figure is rounded/lagged — treat 3-5 as the range.", independent: false }
+  - { source: "json-workbench docs/TELEMETRY.md", date: "2026-09-28", claim: "Telemetry intentionally not enabled — activation is not instrumented and cannot be measured today.", independent: false }
+  - { source: "json-workbench PR #6 (b24c5e8)", date: "2026-09-23", claim: "First-run 'Try with sample data' onboarding already shipped in 0.2.0 — an onboarding tutorial would be duplicate work.", independent: false }
+  - { source: "json-workbench PRs #13/#14/#15 + chrome-store/store.config.json", date: "2026-09-24", claim: "4 of the 5 listing gaps recorded on 2026-09-24 are already fixed (video, 5 screenshots incl. SQL + diff, Chrome/Edge note, JSONL/jq in copy).", independent: false }
+
+recommended_first_step:
+  what: >
+    A single zero-code Chrome Web Store search-surface change: rewrite the listing TITLE (currently
+    "JSON Workbench", 14 of 45 characters, containing neither "viewer" nor "formatter") and the
+    SHORT DESCRIPTION so that both carry the terms the category is actually searched by and lead
+    with the large-file/JSONL job rather than a feature list. Nothing else. No code, no new
+    screenshots, no permission change, no package re-review.
+  why_this_and_not_the_alternatives:
+    - "NOT an onboarding tutorial — already shipped in 0.2.0 (PR #6); building it again is duplicate work."
+    - "NOT a first-run tooltip — its effect is an activation delta, and activation is not instrumented, so the experiment could not be read."
+    - "NOT a telemetry build-out first — it is the only way to ever measure activation, but it is a privacy-policy + store-disclosure + re-review project against a product positioned on 'nothing leaves your browser'. That is a board-level decision, not a first step."
+    - "YES the listing text — it is the only lever that moves the actual binding constraint (impressions), it is measurable with the CWS dashboard alone, and it costs ~0.1 builder-weeks."
+  measurement: >
+    CWS Developer Dashboard impressions and installs, weekly, for 4 weeks after the change lands,
+    against the 4 weeks before. Requires NO telemetry and no privacy change — this is the whole
+    reason it is the right first step.
+  pre_registered_kill_criteria: >
+    If weekly impressions do not at least double within 4 weeks of the change going live, the
+    "discovery is a copy problem" hypothesis is dead and the constraint is off-store distribution
+    (launch posts, communities) — which is Growth's remit, not a product change. Record that as a
+    DEC and stop iterating on listing copy.
+  boundaries: >
+    CPO does not author or publish the copy. CPO cannot commit engineering time and cannot publish
+    externally (AGENTS.md § Forbidden). This is a recommendation to CEO only.
+
+open_questions:
+  - >
+    RUBRIC CONFLICT, needs CEO/board attention. §10.4 weights monetization at 15 and §10.4's
+    missing-evidence rule forces a score of 1 with no model. A free product therefore starts 12
+    weighted points (of 100) down and, combined with a saturated category scoring low on
+    competition-inverse, may never reach the 60 threshold no matter how good the growth case is.
+    §10.4 says weights are calibrated quarterly against G9 outcomes; this may be the first
+    calibration input. Flagging rather than fudging the score to clear the bar.
+  - >
+    GOVERNANCE GAP. The canonical 14 disproof questions ("§9 of the brief") are not committed to
+    any repo. The set used above is a reconstruction from §29d + §10.3. Either commit the brief to
+    appforge-brain or ratify this reconstruction as canonical, so future opportunity records are
+    checked against a stable list.
+  - >
+    MEASUREMENT GAP. Every activation question in this checklist is unanswerable until telemetry
+    exists. Worth a separate, explicitly scoped opportunity for CTO/Analyst rather than smuggling
+    it into a growth ticket.
+  - >
+    User-count discrepancy: the intake ticket cites 5 users from the CWS dashboard (2026-09-27),
+    the public listing shows 3 (2026-09-28). Not material to the conclusion at this scale, but
+    Analyst should confirm which figure the dashboard actually reports (weekly active vs. total).
+
+confidence: medium
+# Medium, not high: the competitive and listing findings are well-sourced and the disconfirming
+# evidence was actively sought, but the target user's frequency and the size of the large-file
+# segment are estimates with no first-party data behind them.
+
+decision: validate   # pending|research|validate|approve|archive
+decision_ref: "Paperclip APP-26 — CPO recommends G1 PASS, G2 FAIL (56.6 < 60), no G3 proposal. CEO decides."
+source: ".claude/json-workbench-growth-brief.md, Paperclip APP-26, research/competitors/CWS-json-viewers.md"

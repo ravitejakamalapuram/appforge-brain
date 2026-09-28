@@ -4,4 +4,4 @@
 
 | ID | Title | Tags | Status | Summary |
 |---|---|---|---|---|
-| [OPP-0001](./OPP-0001-json-workbench-activation.yaml) | JSON Workbench: low activation / near-zero reach despite being live | `json-workbench` `growth` `activation` `chrome-web-store` | running | JSON Workbench is published on CWS (0.1.0 live, 0.2.0 pending review) but has 0 reviews and very few users; the listing has real, fixable gaps and no launch has happened yet.  |
+| [OPP-0001](./OPP-0001-json-workbench-activation.yaml) | JSON Workbench: near-zero reach — the binding constraint is discovery, not activation | `json-workbench` `growth` `reach` `discovery` `chrome-web-store` | running | Activation cannot be measured (no telemetry, n=3) and 4 of the 5 listing gaps already shipped; the real binding constraint is discovery. G1 pass, G2 fail (score 56.6 < 60). Recommended first step: a z |

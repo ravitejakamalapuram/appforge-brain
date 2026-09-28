@@ -16,7 +16,7 @@ summary: >
   2026-09-23. Activation is unmeasurable — the product emits no telemetry — and with 3-5 users the
   activation lever has no room in it anyway. The real constraint is discovery: JSON Workbench is
   the only CWS extension that opens a 10 MB+ JSON/JSONL file, and its title and short description
-  contain none of the words that audience searches. Score 65.2 (threshold 60); G1 PASS, G2 PASS
+  contain none of the words that audience searches. Score 63.2 (threshold 60); G1 PASS, G2 PASS
   reframed; smallest first step is a listing keyword rewrite plus shipping telemetry so the
   activation question becomes answerable at all.
 
@@ -258,7 +258,7 @@ disproof:
 scoring:
   user_pain:        { score: 4, weight: 15, evidence: "E1, E2 — documented category failure at 10 MB; whole content market on the query" }
   demand_evidence:  { score: 4, weight: 20, evidence: "E1, E2, E3 — three independent signals; not 5 because no search-volume figures or user interviews were obtained" }
-  competition_inv:  { score: 4, weight: 10, evidence: "~2.5M users across five undifferentiated formatters; none does the job; offset by ClearJSON entering on privacy" }
+  competition_inv:  { score: 3, weight: 10, evidence: "Inverse of this record's own competition_strength: 3 (6 - 3). ~2.5M users across five undifferentiated formatters and none does the large-file job, but the category is crowded and ClearJSON is entering on the privacy axis. An earlier revision scored this 4; corrected to stay consistent with competition_strength." }
   distribution:     { score: 2, weight: 15, evidence: "E5 — 3 users after 8 days live; no launch executed; CWS search ranking favours 2M-user incumbents. This is the weak spot." }
   monetization:     { score: 2, weight: 15, evidence: "Q10 — free, no provider, no pricing decision; one comparable (Dadroit), no willingness-to-pay signal" }
   dev_cost_inv:     { score: 5, weight: 5,  evidence: "Q11 — product already shipped; proposed step is listing text + telemetry wiring" }
@@ -266,12 +266,27 @@ scoring:
   defensibility:    { score: 3, weight: 5,  evidence: "Q08 — real head start, replicable; no network effect or data moat" }
   security_risk_inv: { score: 4, weight: 3,  evidence: "Q13 — nothing collected, no default host permissions; optional debugger is the exposure" }
   platform_risk_inv: { score: 2, weight: 2,  evidence: "Q13 — single store, and the two optional permissions review scrutinises most" }
-  total: 65.2
+  total: 63.2
   threshold: 60
   note: >
     Clears the threshold, but barely, and the two lowest scores — distribution 2 and monetization 2
     — are exactly what this cycle's work must move. Read that as "proceed narrowly and measure",
     not "this is a strong opportunity".
+
+    SCORE HISTORY AND SENSITIVITY — read before relying on the PASS. The 2026-09-24 revision of
+    this record scored 56.6 and recommended G2 FAIL. This revision scores 63.2 and recommends
+    G2 PASS. The move is not a re-weighting: it comes from evidence found after the first pass
+    (E3, the August 2026 trust shock, raised demand_evidence 3 -> 4; the Dadroit comparable raised
+    monetization 1 -> 2), and two risk scores were lowered, not raised, in the same revision
+    (maintenance_inv 4 -> 3, platform_risk_inv 3 -> 2). A FAIL that becomes a PASS across revisions
+    by the same author deserves suspicion, so the sensitivity is stated explicitly rather than left
+    for the reader to compute:
+      * as scored:                                    63.2  PASS
+      * if demand_evidence is 3, not 4:               59.2  FAIL
+      * if user_pain is 3, not 4:                     60.2  PASS by 0.2
+    One reasonable downgrade of demand_evidence flips the gate. Treat the PASS as conditional on
+    accepting E1-E3 as genuine third-party demand evidence. If CEO does not accept them at that
+    strength, this is a G2 FAIL and should be archived with a learning note, not argued up.
 
 recommended_scope:
   gate_recommendation: "G1 PASS, G2 PASS (reframed). Recommend to CEO for G3; CPO cannot self-approve (AGENTS.md Forbidden)."

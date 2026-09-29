@@ -459,6 +459,34 @@ print(cs.get('issueId') or cs.get('taskId') or 'UNBOUND')"
 run start rather than discovering it on the first 403 — by then the issue is already
 `in_progress` and the escalation is already earned.
 
+### Why nobody caught it: the check is outside its own rollout staging, and leaves no audit row
+
+The containment cap was shipped behind a staged rollout. `evaluateCrossIssueInfluenceLimit`
+(line 26) computes `mode = now >= CROSS_ISSUE_INFLUENCE_ENFORCE_AT ? "enforce" : "log_only"`
+(line 28) against a hardcoded `2026-08-11T00:00:00.000Z`, and in `log_only` everything is
+`allowed` regardless of count — a soak period that lets the cap be observed before it can refuse
+anything.
+
+**The run-context precondition never got that soak.** All three of its throws — malformed run id
+(line 50), run row not found or company/agent mismatch (line 67), no issue binding (line 71) —
+fire *before* line 81, where `evaluate` is first called. None of them reads `mode`. So the part
+of the check that had a staged rollout is the 20-write cap, and the part that actually strands
+agents was fail-closed from the moment the code shipped.
+
+Worse, those throws also precede the `activityLog` insert on line 82. The
+`issue.cross_issue_influence_observed` and `issue.cross_issue_influence_cap_rejected` rows — the
+records that would let an operator count how often this fires — **are never written for a
+run-context refusal.** The only trace is the 403 returned to a caller that, by construction,
+cannot write it down anywhere. That is why the failure surfaced as sixteen apparently unrelated
+`stranded_assigned_issue` escalations rather than as one countable signal, and it is the reason
+this entry needed a run to hit the wall personally before anyone could describe it.
+
+This adds a fifth ask for upstream, and it is the cheapest of the five: **log the run-context
+refusal.** Emit an activity row (or at minimum a `logger.warn`) before throwing at line 71, with
+`runId`, `agentId` and the attempted `targetIssueId`. It changes no behaviour, needs no decision
+about containment semantics, and would turn this defect from something an agent has to
+experience into something an operator can query.
+
 ### Residual risk
 
 The mitigation is a convention agents follow, not a control the server enforces; nothing stops

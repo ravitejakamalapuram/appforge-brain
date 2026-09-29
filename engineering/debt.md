@@ -17,6 +17,7 @@ describes is still true and whoever meets it next needs the reasoning, not just 
 | DEBT-0001 | Quota failures retried inside the provider's reset window | APP-45 | High | Resolved via workaround |
 | DEBT-0002 | No company-wide concurrent-run ceiling | APP-45 | Medium | Open |
 | DEBT-0003 | Quota-retry watchdog is unmonitored; its failure leaves an agent paused | APP-45 | Medium | Open |
+| DEBT-0004 | Credentialed re-fetch of the active tab's URL was undisclosed | APP-81 | Low | Resolved |
 
 ---
 
@@ -227,3 +228,102 @@ The workaround was scoped to stopping the token waste, and closing this needs a 
 secrets plus a LaunchAgent reload — an operational change worth making deliberately and on its own,
 not folded into the entry that certified the workaround. Recorded rather than done so that the gap
 is visible if the watchdog does go quiet before it is closed.
+
+---
+
+## DEBT-0004 — The credentialed re-fetch of the active tab's URL was undisclosed
+
+**Raised by** APP-81, 2026-09-29. **Severity** Low.
+**Status** Resolved, 2026-09-29 — the disclosure gap is closed; `credentials: "include"` was
+reviewed and deliberately kept.
+
+### What was asked
+
+`json-workbench/apps/extension/background.js` serves the side panel's "Active JSON tab" action by
+re-requesting the active tab's own URL:
+
+```js
+const response = await fetch(tab.url, { credentials: "include" });
+```
+
+APP-81 asked two questions and did not presuppose the answer to either: is `credentials: "include"`
+load-bearing or vestigial, and is the product's privacy positioning honest about it? The finding
+came out of APP-46 (telemetry design). It was explicitly **not** filed as a vulnerability, and it is
+not recorded as one here.
+
+### Finding 1 — `credentials: "include"` is load-bearing, and the safer-looking alternatives are not
+
+The action's purpose is to hand the workbench the JSON document the developer is already looking at.
+In the dominant case that document is an API endpoint behind a session cookie. An uncredentialed
+re-fetch of such a URL does not return the same bytes the user can see on screen; it returns a 401,
+a 403, or an HTML sign-in page. The feature would appear broken in exactly the situation it exists
+for, and — worse for a debugging tool — it would be broken *silently*, handing back a plausible
+document that is not the one on screen.
+
+`credentials: "same-origin"` is not a middle option here. The request's initiator is the extension
+service worker, whose origin is `chrome-extension://<id>`. That never matches an `http(s)` tab URL,
+so `"same-origin"` degrades to exactly `"omit"` for every URL this code path can be given. Choosing
+it would read as a hardening step in review while changing nothing about the failure mode; that is
+worse than leaving the honest value in place.
+
+### Finding 2 — reachability is bounded by a permission check, not by trust in the caller
+
+The concern worth taking seriously was whether the extension can be induced to make an
+authenticated request to an arbitrary origin it has no business touching. It cannot, and the reason
+is structural rather than a validation the code performs:
+
+`apps/extension/manifest.json` declares `permissions: ["activeTab", "sidePanel", "storage",
+"scripting"]`, **no `tabs` permission**, and no default host permissions (`<all_urls>` is optional
+and gated behind the auto-render toggle). Without `tabs` or a host grant, `chrome.tabs.query`
+returns a tab object whose `url` is `undefined`. So the URL this code fetches can only be populated
+when the extension already holds access to that tab — either the transient `activeTab` grant
+created by the user invoking the extension on that tab, or the `<all_urls>` grant the user opted
+into. The fetch therefore targets only a tab the user is looking at, on an origin the user has
+already granted, after the user pressed a button. That is the same authority the user gave by
+loading the page, exercised once more.
+
+### Finding 3 — the real defect was the disclosure, and it was worse than "silent"
+
+`.appforge/product.yaml` carried `transmitted.endpoints: []` with the comment "the one fetch() call
+re-reads the active tab's own URL, not a third-party endpoint". That is true about **destination**
+and silent about **credentials**, which is the half a store reviewer cares about. `PRIVACY.md`,
+`docs/PRIVACY.md`, `CHROMEWEBSTORE.md`, `docs/STORE_LISTING.md` and `app-metadata.json` did not
+mention the request at all, while the product's whole positioning is "nothing leaves your browser".
+Nothing said was false; the omission was the problem, and an omission is what a reviewer finds
+rather than what a reviewer is told.
+
+A second, smaller defect surfaced while establishing Finding 2. The permission-denied case and the
+not-an-HTTP-page case shared one error branch, so a user who opened the side panel without granting
+access to the tab was told "The active tab is not an HTTP(S) page" about a page that plainly was
+one. That framed a permissions problem as a content problem and gave the user no route out.
+
+### What changed
+
+On `json-workbench` branch `fix/APP-81-credentialed-refetch-disclosure`:
+
+- `background.js` — split the missing-grant case out of the not-HTTP case with a message that names
+  the two ways to grant access; and recorded, at the call site, why `credentials: "include"` is kept
+  and why `"same-origin"` is not an alternative.
+- `PRIVACY.md` and `docs/PRIVACY.md` — a new section, "How 'Active JSON tab' reads the page",
+  stating in plain language that the request goes only to the page's own address, that it carries
+  the user's cookies for that site, why that is necessary, and the practical consequence: the action
+  causes one additional authenticated request to the page you are on, exactly as reloading the tab
+  would, so a state-changing endpoint requested twice changes state twice.
+- `CHROMEWEBSTORE.md`, `docs/STORE_LISTING.md`, `app-metadata.json` — the same fact in the
+  permission justification a reviewer reads, attached to `activeTab`.
+- `.appforge/product.yaml` — `transmitted.endpoints` stays `[]`, which remains correct, with the
+  comment extended to cover credentials and to point here.
+
+### Why this is recorded as resolved rather than closed quietly
+
+The entry exists because the *decision* is the artifact. Someone reading
+`credentials: "include"` in a privacy-positioned product will ask this question again — most likely
+a Chrome Web Store reviewer during the APP-46 telemetry change, which moves this product from
+"collects nothing" to "collects User activity" and rewrites the same disclosure documents. The
+answer should be on the record, with its reasoning, before it is asked for. "Reviewed, correct as
+written, here is why" is the outcome, and the disclosure work is what makes it defensible.
+
+Per APP-81 the code change is small and rides along with the next `json-workbench` release rather
+than getting its own.
+
+**Related** APP-46 §3.4 (source of the finding), `DEC-0006`, OPP-0001 q13.

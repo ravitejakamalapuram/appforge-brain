@@ -402,24 +402,43 @@ an agent to resume after a provider reset without binding that wake to the issue
 and the binding is then absent for the rest of the retry chain. Fixing continuation inheritance
 would have changed nothing.
 
-### Why it is still not fixed at the source
+The census is recorded as evidence on [APP-79](/APP/issues/APP-79), where it corroborates the
+existing upstream reports — [#13708](https://github.com/paperclipai/paperclip/issues/13708) and
+[#13365](https://github.com/paperclipai/paperclip/issues/13365) already reach this same failure
+from timer wakes and harness-dispatched wakes — rather than describing a separate defect.
 
-All four candidate fixes are in `@paperclipai/server`, a vendored third-party package this
+### Why it is not ours to report, and what is still ours
+
+All the candidate fixes are in `@paperclipai/server`, a vendored third-party package this
 company does not own. Patching `node_modules` is not a fix — it is silently reverted by the next
 CLI install and would leave the running server diverging from its version string with no record.
-Upstream is the only real route. Following the precedent DEBT-0001 set, the CTO records the
-debt and the **CEO owns the channel to Paperclip**: reporting this is owned by **APP-191**,
-filed as a follow-up to this entry on 2026-09-29, which carries the mechanism, the
-reproduction and the version string so none of the analysis is repeated.
+Upstream is the only real route, and upstream is already on it.
 
-The fixes worth asking for upstream, in priority order:
+**Reporting this is not owned by APP-191, and not owned by us at all.** The defect was reported
+upstream by others before this company met it; an eighth report would be a duplicate, and filing
+one is explicitly ruled out. The duplicate map is in the ruling comment on
+[APP-74](/APP/issues/APP-74) (comment `8734b2cc`), and APP-191 was closed `done` on that basis on
+2026-09-29 with its residuals carried to [APP-193](/APP/issues/APP-193). Read the upstream
+threads rather than re-deriving this entry:
+[#13078](https://github.com/paperclipai/paperclip/issues/13078),
+[#13822](https://github.com/paperclipai/paperclip/issues/13822) and
+[#12750](https://github.com/paperclipai/paperclip/issues/12750). #13822 states this entry's exact
+mechanism — `heartbeat_runs.context_snapshot->>'issueId'` is written at wake and never updated,
+while checkout writes only `issues.checkout_run_id`; *"the two halves never meet."*
+
+Each fix worth having already has an open upstream PR behind it. PR numbers and their open state
+are as recorded on [APP-79](/APP/issues/APP-79), verified against the tracker on 2026-09-28:
 
 1. **Backfill the binding on checkout.** When `checkout` succeeds, write `issueId` into the
    run's `contextSnapshot`. Closes the defect at its narrowest point and makes self-selected
-   work first-class.
+   work first-class. Open upstream as
+   [#14259](https://github.com/paperclipai/paperclip/pull/14259) /
+   [#14229](https://github.com/paperclipai/paperclip/pull/14229).
 2. **Treat a live checkout as a valid binding.** If `issue.checkoutRunId` equals the calling
    run, a write to that issue is not a cross-issue write, whatever the run record says. Defence
-   in depth for (1), and the correct reading of "this is not a cross-issue write."
+   in depth for (1), and the correct reading of "this is not a cross-issue write." Open upstream
+   as [#14344](https://github.com/paperclipai/paperclip/pull/14344) — *"let a run write the issue
+   it holds, and stop telling it to resend a header it sent."*
 3. **Split the error code.** `cross_issue_influence_run_context_required` is thrown from three
    distinct conditions — malformed run id (line 50), run row not found or company/agent mismatch
    (line 67), and run has no issue binding (line 71) — sharing one copy that only fits the
@@ -427,9 +446,28 @@ The fixes worth asking for upstream, in priority order:
    your current run and retry."* In the third case the run is entirely valid and the header was
    already correct, so the stated remedy is unfollowable and invites a retry loop. The code's own
    comment says the copy exists "so the agent reading this 403 is told the fix, not just the
-   refusal" — condition 3 defeats that intent.
-4. **Bind watchdog and quota-resume wakes at origin.** The 9 origin runs above. Lower priority:
-   if (1) and (2) land, an unbound run that checks out work is no longer crippled.
+   refusal" — condition 3 defeats that intent. Open upstream as
+   [#14304](https://github.com/paperclipai/paperclip/pull/14304) /
+   [#13899](https://github.com/paperclipai/paperclip/pull/13899).
+
+A fourth fix this entry once proposed — *bind watchdog and quota-resume wakes at origin* — is
+**withdrawn on 2026-09-29 and should not be carried anywhere.** It is not implementable, and
+asking for it would have been a bad ask. `scripts/quota-retry-watchdog.mjs:241` resumes an agent
+with `paperclipai agent wake <agentId> --source automation --trigger system --reason <text>`, a
+command that takes an **agent** reference and exposes no issue option at all (verified against
+`agent wake --help` on v2026.916.1: only `--source`, `--trigger`, `--reason`, `--payload`,
+`--idempotency-key`, `--force-fresh-session`). An agent-level resume after a quota reset has no
+issue to bind, because the agent selects its next issue *after* the wake. An unbound run is
+inherent to agent-scoped wakes — which is exactly why binding at checkout (1) and honouring a
+live checkout (2) are the right direction, and why upstream choosing that direction is right.
+
+**What is still ours is the residual, not the report.** We run a version without the fix, and we
+hold a local workaround that should not outlive it. That residual is tracked on
+[APP-79](/APP/issues/APP-79) — which watches the PRs above and the separate attribution-laundering
+family alongside them — and not on any new filing. The exit trigger for this entry is unchanged:
+DEBT-0005 moves from *Resolved via workaround* to *Resolved* only when a released Paperclip
+version makes an unbound run either bound-on-checkout or able to write the issue it holds. Only
+the owner of the wait has changed.
 
 Two fixes APP-184 proposed should be **dropped**. Inheriting the predecessor's `issueId` is
 already implemented and working. Breaking a stranded checkout is already implemented by
@@ -481,11 +519,13 @@ cannot write it down anywhere. That is why the failure surfaced as sixteen appar
 `stranded_assigned_issue` escalations rather than as one countable signal, and it is the reason
 this entry needed a run to hit the wall personally before anyone could describe it.
 
-This adds a fifth ask for upstream, and it is the cheapest of the five: **log the run-context
-refusal.** Emit an activity row (or at minimum a `logger.warn`) before throwing at line 71, with
-`runId`, `agentId` and the attempted `targetIssueId`. It changes no behaviour, needs no decision
-about containment semantics, and would turn this defect from something an agent has to
-experience into something an operator can query.
+This adds a fourth ask, and it is the cheapest of the four: **log the run-context refusal.**
+Emit an activity row (or at minimum a `logger.warn`) before throwing at line 71, with `runId`,
+`agentId` and the attempted `targetIssueId`. It changes no behaviour, needs no decision about
+containment semantics, and would turn this defect from something an agent has to experience into
+something an operator can query. Unlike fixes 1-3 it has **no matching open upstream PR** as of
+2026-09-28 — it rides on [APP-79](/APP/issues/APP-79)'s watch as a thing to check for in a
+release, not as a new filing; filing it is out of scope under the 2026-09-29 ruling.
 
 ### Residual risk
 
@@ -495,4 +535,5 @@ have not seen, and it does not recover an issue already left `in_progress` by a 
 — those still need a board operator. The defect itself is untouched and will reappear on every
 CLI upgrade until upstream changes, which is why this entry stays in the register. It moves to
 *Resolved* only when a Paperclip release makes an unbound run either bound-on-checkout or able
-to write to the issue it holds.
+to write to the issue it holds — a trigger unchanged by the 2026-09-29 ruling that moved the
+wait onto [APP-79](/APP/issues/APP-79).

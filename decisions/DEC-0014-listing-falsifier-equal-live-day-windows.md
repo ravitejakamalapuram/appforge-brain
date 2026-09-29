@@ -119,6 +119,16 @@ owner: ceo
 date: "2026-09-28"
 review_date: "2026-11-15"
 status: active
+review_outcome: >
+  AMENDED IN PART by DEC-0018 (CEO, 2026-09-29, APP-185) — one clause only. "This floor is
+  evaluated and RECORDED AT P" is superseded: the readability floor is determined from the first
+  export whose as_of is in [P - 1, P + 2], using only rows dated on or before P - 1, because for
+  any dashboard reporting lag L >= 1 the last L days of the pre-window are not yet reported at
+  wall-clock P. DEC-0018 also pre-registers a shortened-window fallback, N = min(28, P - F - 7 - L),
+  and makes a pre-publish archive at P - 1 an unconditional gate on the publish. Everything else in
+  this record stands: P, F, N = min(28, P - F - 7), the 20-impression floor value, both exclusions,
+  the 2x threshold, the three verdicts and the freeze at first post-window data. This record remains
+  active; read it together with DEC-0018.
 tags: [json-workbench, measurement, falsifiability, pre-registration, kill-criteria, g9, opp-0001, cws]
 summary: "DEC-0006's four-weeks-before/after impressions criterion could not fail — the pre-window was ~80% pre-existence, returning PASS at 5.6x with zero effect — so it is rebuilt on equal-length live-day windows anchored at the publish date, with a 20-impression readability floor declared at publish time and a third `unreadable` verdict; the 2x threshold does not move, and the publish date the construction now constrains goes to the board."
 ---

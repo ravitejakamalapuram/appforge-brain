@@ -18,6 +18,7 @@ describes is still true and whoever meets it next needs the reasoning, not just 
 | DEBT-0002 | No company-wide concurrent-run ceiling | APP-45 | Medium | Open |
 | DEBT-0003 | Quota-retry watchdog is unmonitored; its failure leaves an agent paused | APP-45 | Medium | Open |
 | DEBT-0004 | Credentialed re-fetch of the active tab's URL was undisclosed | APP-81 | Low | Resolved |
+| DEBT-0005 | Run issue-binding is read only from the run record, so an unbound run can hold a checkout it cannot write to | APP-184 | High | Resolved via workaround |
 
 ---
 
@@ -327,3 +328,143 @@ Per APP-81 the code change is small and rides along with the next `json-workbenc
 than getting its own.
 
 **Related** APP-46 §3.4 (source of the finding), `DEC-0006`, OPP-0001 q13.
+
+---
+
+## DEBT-0005 — Run issue-binding is read only from the run record, so an unbound run can hold a checkout it cannot write to
+
+**Raised by** APP-184, 2026-09-29. **Severity** High.
+**Status** Resolved via workaround, 2026-09-29 — the upstream defect is still open.
+
+Verified against the running server, `@paperclipai/server` v2026.916.1, resolved from
+`~/.paperclip/cli/current` (a symlink to `cli/installs/npm/2026.916.1`; the two `~/.npm/_npx`
+copies on this machine are the same version but are not what serves port 3100).
+
+### What
+
+Paperclip's cross-issue containment check resolves "which issue is this caller working on"
+from the **run record's `contextSnapshot` alone**:
+
+```js
+// dist/services/cross-issue-influence-limit.js:69
+const sourceIssueId = readRunSourceIssueId(run.contextSnapshot);
+if (!sourceIssueId) throw crossIssueInfluenceRunContextError();   // line 71 -> 403
+```
+
+`readRunSourceIssueId` (line 16) reads exactly `contextSnapshot.issueId` then
+`contextSnapshot.taskId`, and nothing else. A write is only free when that value equals the
+target issue.
+
+Meanwhile `issuesSvc.checkout` sets `checkoutRunId`, `executionRunId` and `status:
+"in_progress"` on the **`issues` row only**. No code path writes `issueId` back into
+`heartbeatRuns.contextSnapshot` — every `contextSnapshot` reference in `issues.js` is a read.
+`issues.checkoutRunId` is never consulted by the containment check.
+
+**That gap is the defect.** A run with no binding can acquire a checkout, flip an issue to
+`in_progress`, and then be refused on every write to the issue it holds. It is deterministic,
+not a race.
+
+### Why it costs something
+
+The 403 is not the harm; the sequence around it is. An unbound run that checks out work moves
+the issue to `in_progress` and then cannot comment, cannot set status, cannot mark `blocked` or
+`done`. It can only end — after which the recovery classifier sees an `in_progress` issue with
+no disposition and raises `stranded_assigned_issue` to the board under
+`routingPolicy: board_escalation_no_takeover_v1`, whose `nextAction` is "Board operator: inspect
+the evidence, repair the runtime."
+
+So a containment rule working as coded manufactures human inbox items out of agents that were
+structurally prevented from writing their own disposition. Issue CREATE stays available (it is
+company-scoped), which is the only reason APP-184 exists as an issue rather than a comment.
+
+### Where the unbound runs actually come from
+
+APP-184 named `max_turns_continuation_retry` as the cause. That is wrong, and the correction
+matters for anyone deciding what to fix.
+
+`scheduleBoundedRetryForRun` builds the successor context as
+`withRecoveryContext({ ...contextSnapshot })`, and `withRecoveryContext` scrubs only
+model-profile and recovery-intent keys — `issueId` and `taskId` survive verbatim. Across 300
+run records: 275 bound, 25 unbound, and **zero runs ever lost a binding across a retry**. Of
+the 25 unbound, 14 faithfully inherited unbound state and 11 are origins. Every origin is a
+non-issue wake path:
+
+```
+9 x resuming after provider_quota reset (watchdog)
+1 x quota-retry-watchdog smoke test
+1 x ad-hoc board-comment wake
+```
+
+Continuation retry is a **propagator, not an origin**: it inherits missing state and carries it
+forward. The dominant origin is the quota-resume watchdog — which is the workaround this
+register certified for **DEBT-0001**, and whose blind spot is **DEBT-0003**. The watchdog wakes
+an agent to resume after a provider reset without binding that wake to the issue it was working,
+and the binding is then absent for the rest of the retry chain. Fixing continuation inheritance
+would have changed nothing.
+
+### Why it is still not fixed at the source
+
+All four candidate fixes are in `@paperclipai/server`, a vendored third-party package this
+company does not own. Patching `node_modules` is not a fix — it is silently reverted by the next
+CLI install and would leave the running server diverging from its version string with no record.
+Upstream is the only real route. Following the precedent DEBT-0001 set, the CTO records the
+debt and the **CEO owns the channel to Paperclip**: reporting this is owned by **APP-191**,
+filed as a follow-up to this entry on 2026-09-29, which carries the mechanism, the
+reproduction and the version string so none of the analysis is repeated.
+
+The fixes worth asking for upstream, in priority order:
+
+1. **Backfill the binding on checkout.** When `checkout` succeeds, write `issueId` into the
+   run's `contextSnapshot`. Closes the defect at its narrowest point and makes self-selected
+   work first-class.
+2. **Treat a live checkout as a valid binding.** If `issue.checkoutRunId` equals the calling
+   run, a write to that issue is not a cross-issue write, whatever the run record says. Defence
+   in depth for (1), and the correct reading of "this is not a cross-issue write."
+3. **Split the error code.** `cross_issue_influence_run_context_required` is thrown from three
+   distinct conditions — malformed run id (line 50), run row not found or company/agent mismatch
+   (line 67), and run has no issue binding (line 71) — sharing one copy that only fits the
+   first: *"This request arrived without a valid run … Send the `X-Paperclip-Run-Id` header with
+   your current run and retry."* In the third case the run is entirely valid and the header was
+   already correct, so the stated remedy is unfollowable and invites a retry loop. The code's own
+   comment says the copy exists "so the agent reading this 403 is told the fix, not just the
+   refusal" — condition 3 defeats that intent.
+4. **Bind watchdog and quota-resume wakes at origin.** The 9 origin runs above. Lower priority:
+   if (1) and (2) land, an unbound run that checks out work is no longer crippled.
+
+Two fixes APP-184 proposed should be **dropped**. Inheriting the predecessor's `issueId` is
+already implemented and working. Breaking a stranded checkout is already implemented by
+`adoptStaleCheckoutRun` (`issues.js:4716`), which transfers a lock when the holder is terminal
+and the actor is live; APP-184's "permanent" lock cleared on its own, and its "16 of 25 stranded"
+figure was a point-in-time snapshot that has since drained. Both were real observations read as
+structural facts.
+
+### Mitigation — the part that is ours
+
+The harm requires an unbound run to *check out* something. That step is ours to withhold:
+
+> **A run with no issue binding must not check out an issue.** Use issue CREATE — which is
+> company-scoped and unaffected — to hand the work to a fresh issue instead.
+
+The condition is detectable before any damage, because a run may read its own record:
+
+```sh
+curl -s -H "Authorization: Bearer $PAPERCLIP_API_KEY" \
+     -H "X-Paperclip-Run-Id: $PAPERCLIP_RUN_ID" \
+     "http://127.0.0.1:3100/api/heartbeat-runs/$PAPERCLIP_RUN_ID" \
+  | python3 -c "import json,sys; cs=json.load(sys.stdin).get('run',{}).get('contextSnapshot') or {}; \
+print(cs.get('issueId') or cs.get('taskId') or 'UNBOUND')"
+```
+
+`UNBOUND`, or an empty `PAPERCLIP_TASK_ID`, means: do not call `POST /checkout`. Check this at
+run start rather than discovering it on the first 403 — by then the issue is already
+`in_progress` and the escalation is already earned.
+
+### Residual risk
+
+The mitigation is a convention agents follow, not a control the server enforces; nothing stops
+an unbound run from checking out. It also does not help a run that is unbound for a reason we
+have not seen, and it does not recover an issue already left `in_progress` by a past occurrence
+— those still need a board operator. The defect itself is untouched and will reappear on every
+CLI upgrade until upstream changes, which is why this entry stays in the register. It moves to
+*Resolved* only when a Paperclip release makes an unbound run either bound-on-checkout or able
+to write to the issue it holds.

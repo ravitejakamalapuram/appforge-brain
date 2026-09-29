@@ -4,4 +4,4 @@
 
 | ID | Title | Tags | Status | Summary |
 |---|---|---|---|---|
-| [EXP-0001](./EXP-0001-json-workbench-listing-keywords.yaml) | JSON Workbench: CWS title + short-description keyword rewrite (discovery test) | `json-workbench` `growth` `chrome-web-store` `listing` `discovery` `copy` | draft | Two candidate listing titles and two candidate short descriptions for the live CWS item, drafted to test OPP-0001 q07: that JSON Workbench is invisible on the query its audience actually types. Copy o |
+| [EXP-0001](./EXP-0001-json-workbench-listing-keywords.yaml) | JSON Workbench: CWS title + short-description keyword rewrite (discovery test) | `json-workbench` `growth` `chrome-web-store` `listing` `discovery` `copy` | selected | Two candidate listing titles and two candidate short descriptions for the live CWS item, drafted to test OPP-0001 q07: that JSON Workbench is invisible on the query its audience actually types. Copy o |

@@ -2,60 +2,81 @@ id: EXP-0001
 title: "JSON Workbench: CWS title + short-description keyword rewrite (discovery test)"
 tags: [json-workbench, growth, chrome-web-store, listing, discovery, copy]
 product_id: json-workbench
-status: draft # draft|awaiting_approval|running|readout|stopped
+status: selected # draft|selected|awaiting_approval|running|readout|stopped
 owner: growth
 opened: "2026-09-28"
+last_revised: "2026-09-29"
 source_issue: APP-34
-decision_ref: "DEC-0006 (CEO, 2026-09-28) approves the DRAFT only; APP-31 portfolio call -> APP-34 HANDOFF: Growth; CEO reply on APP-34 2026-09-28 routes publish through a G7 board approval raised by CTO"
+decision_ref: >
+  DEC-0003 (first factory loop runs on json-workbench) is the authority the work proceeds under.
+  DEC-0006 (CEO, 2026-09-28) approved the DRAFT and the PR only, not the publish. DEC-0014 (CEO,
+  2026-09-28) REPLACES DEC-0006's measurement section and is the governing falsifier — see
+  `kill_criterion`. CEO ruling on APP-34 card e173d7ea (2026-09-29) selects the pairing and the
+  publish path.
 opportunity: research/opportunities/OPP-0001-json-workbench-activation.yaml
 summary: >
   Two candidate listing titles and two candidate short descriptions for the live CWS item, drafted
   to test OPP-0001 q07: that JSON Workbench is invisible on the query its audience actually types.
-  Copy only — no code, no screenshots, no permission change. NOT PUBLISHED. Needs CEO selection,
-  board approval, and a founder-side baseline before it can run.
+  Copy only — no code, no screenshots, no permission change. The CEO has SELECTED T1 + S1 and ruled
+  that both fields ship together in one patch release. NOT PUBLISHED: the publish is board-gated at
+  G7 and its date is constrained by DEC-0014's window arithmetic.
 
 hypothesis: >
   The binding constraint on JSON Workbench installs is discovery, and discovery is a copy problem:
-  the listing title spends 14 of an available 45 characters on the bare product name and neither
-  the title nor the short description contains "viewer", "formatter", "JSONL" or "NDJSON" — the
-  words the FormatArc/Dadroit/DEV audience (OPP-0001 E1/E2/E3) searches. Putting those words in
-  the two indexed fields should raise CWS search impressions.
+  the listing title spends 14 characters on the bare product name and neither the title nor the
+  short description contains "viewer", "formatter", "JSONL" or "NDJSON" — the words the
+  FormatArc/Dadroit/DEV audience (OPP-0001 E1/E2/E3) searches. Putting those words in the two
+  indexed fields should raise CWS search impressions.
 
 # ---------------------------------------------------------------------------
 # THE DRAFT COPY
 # ---------------------------------------------------------------------------
 current:
-  title: "JSON Workbench"                 # 14 chars of 45
+  title: "JSON Workbench"                 # 14 chars
   short_description: "Inspect, transform, validate, diff, and query large JSON locally. Nothing leaves your browser."  # 94 of 132
   note: >
     The current short description is accurate and privacy-forward but leads with five verbs. It
     contains no noun anyone searches for except "JSON", and it never says JSONL or NDJSON.
 
+character_budget:
+  field: "apps/extension/manifest.json -> name (this is the CWS item title; see publish_path)"
+  hard_limit: 75
+  hard_limit_source: >
+    release-platform CHROME_RULES.name = 75, which is the manifest `name` ceiling and the limit that
+    would actually reject the package. CORRECTED 2026-09-29. Earlier revisions of this record, and
+    OPP-0001 and APP-34 before it, described 45 as "the cap" and as "the manifest `name` limit".
+    It is neither. 45 is roughly where the Chrome Web Store TRUNCATES the displayed title.
+  practical_target: 45
+  why_target_not_limit: >
+    Characters past ~45 are not indexed-and-invisible, they are simply not shown in the places a
+    searcher decides from — the search result row and the category tile. Spending budget past the
+    truncation point buys nothing for discovery, which is the whole point of this experiment. Both
+    candidates were written to 45 and are unaffected by the correction.
+
 title_candidates:
   - id: T1
     text: "JSON Workbench - Large JSON & JSONL Viewer"
     length: 42
-    limit: 45
     targets: ["large json viewer", "large json file", "jsonl viewer", "jsonl"]
     rationale: >
-      RECOMMENDED. Spends the character budget on the query we can actually win. OPP-0001's
-      positioning read-through is explicit that the "pretty-print this JSON tab" job is won and
-      saturated, so the word "formatter" would put us in a query headed by a 2,000,000-user
-      listing literally named "JSON Formatter". "Viewer" is the category term we can rank in when
-      it is qualified by "large" or "JSONL", which is the one axis no incumbent serves (E1).
-      "Formatter" is carried by short-description candidate S2 instead, so both category terms are
-      still in the indexed listing text.
+      SELECTED by the CEO on 2026-09-29. Spends the character budget on the query we can actually
+      win. OPP-0001's positioning read-through is explicit that the "pretty-print this JSON tab" job
+      is won and saturated, so the word "formatter" would put us in a query headed by a
+      2,000,000-user listing literally named "JSON Formatter". "Viewer" is the category term we can
+      rank in when it is qualified by "large" or "JSONL", which is the one axis no incumbent serves
+      (E1). At 42 characters it also sits inside the ~45 display truncation with three characters of
+      margin.
   - id: T2
     text: "JSON Workbench: Large JSON Viewer & Formatter"
     length: 45
-    limit: 45
     targets: ["json viewer", "json formatter", "large json"]
     rationale: >
-      ALTERNATIVE. Uses the full 45 characters and carries both category terms in the title
-      itself, which is the most literal reading of the APP-34 handoff. Cost: it enters the
-      saturated "json formatter" query where we will not outrank the incumbents, and it drops
-      "JSONL" — the highest-intent, lowest-competition term available to us. Also sits exactly on
-      the 45-character cap with zero margin for a later tweak.
+      NOT SELECTED. Carries both category terms in the title itself, which was the most literal
+      reading of the APP-34 handoff. Cost: it enters the saturated "json formatter" query where we
+      will not outrank the incumbents, and it drops "JSONL" — the highest-intent, lowest-competition
+      term available to us. The CEO's ruling: "T2 spends scarce characters re-entering `json
+      formatter` at the small-file end where your own benchmark says we have no advantage, and drops
+      JSONL to pay for it."
 
 short_description_candidates:
   - id: S1
@@ -64,33 +85,42 @@ short_description_candidates:
     limit: 132
     targets: ["large json file", "open large json file", "jsonl", "ndjson"]
     rationale: >
-      RECOMMENDED with T1. Leads with the job (open a large file) rather than a feature list, as
-      the handoff requires, and mirrors the phrasing of the E2 search market ("how to open a large
-      JSON file"). Pairs with T1 without repeating it word-for-word.
+      SELECTED by the CEO on 2026-09-29. Leads with the job (open a large file) rather than a
+      feature list, as the handoff requires, and mirrors the phrasing of the E2 search market ("how
+      to open a large JSON file"). Pairs with T1 without repeating it word-for-word.
   - id: S2
     text: "A JSON viewer and formatter built for large JSON, JSONL and NDJSON files. Query with SQL, jq or JSONata. Nothing uploads."
     length: 121
     limit: 132
     targets: ["json viewer", "json formatter", "large json", "jsonl", "ndjson"]
     rationale: >
-      ALTERNATIVE, and the right pairing if T1 is chosen and the CEO still wants "formatter" in
-      the indexed text. Leads with the category nouns instead of the job, which is weaker against
-      the handoff's "lead with the large-file / JSONL job" instruction but stronger on term
-      coverage.
+      NOT SELECTED. Was the right pairing only if the CEO wanted "formatter" in the indexed text.
+      Leads with the category nouns instead of the job, which is weaker against the handoff's "lead
+      with the large-file / JSONL job" instruction.
 
-recommended_pairing: "T1 + S1 (job-led, JSONL-weighted). T1 + S2 if 'formatter' must appear."
+selection:
+  pairing: "T1 + S1"
+  ruled_by: "CEO"
+  ruled_on: "2026-09-29"
+  recorded_at: "APP-34 interaction card e173d7ea (option ids t1_s1, bundle); reasoning in the CEO's APP-34 comment of the same date"
+  reasoning: >
+    Confirmation of Growth's recommendation rather than an override. Leading with the large-file /
+    JSONL job is the thesis; conceding the saturated "json formatter" query to a ~2M-user incumbent
+    is the right trade and was explicitly ruled "not one to hedge".
+  consequence: >
+    "Formatter" now appears in NEITHER indexed field, because S2 was the candidate carrying it and
+    S2 was not selected. Growth flags this as a deliberate, ruled trade rather than an oversight:
+    the term is conceded. It does remain in the long description, which is indexed less strongly.
 
 recommendation_corroborated: >
   The CEO's 2026-09-28 reply on APP-34 independently argues the same brief this draft was written
   to: FormatArc's 2026-07-11 benchmark found only 2 of 6 CWS extensions format a 10 MB JSON file
   and none format 50 MB, with the ~2M-user category leader giving up at 10 MB, so the unserved job
-  is large-file/JSONL and the 45 characters should be spent there, job first rather than feature
-  list. That is precisely the T1 + S1 thesis and it strengthens T1 against T2 — T2 spends scarce
-  characters re-entering the "formatter" query the benchmark shows the incumbent already owns at
-  small file sizes, which is the one size range where we have no advantage. No copy change follows
-  from it. NOTE the benchmark still may NOT appear as listing text: it is a comparative claim about
-  named third-party products and is not traceable to product-facts.yaml. It belongs on the landing
-  page and in launch posts. See claim_traceability.deliberately_omitted.
+  is large-file/JSONL and the characters should be spent there, job first rather than feature list.
+  That is precisely the T1 + S1 thesis and it is what the 2026-09-29 selection turned on. NOTE the
+  benchmark still may NOT appear as listing text: it is a comparative claim about named third-party
+  products and is not traceable to product-facts.yaml. It belongs on the landing page and in launch
+  posts. See claim_traceability.deliberately_omitted.
 
 not_keyword_stuffing: >
   Every term in every candidate names a file format the product actually reads or a capability it
@@ -121,164 +151,225 @@ claim_traceability:
 # ---------------------------------------------------------------------------
 # MEASUREMENT + PRE-REGISTERED KILL CRITERION
 # ---------------------------------------------------------------------------
+kill_criterion:
+  authority: "DEC-0014 (CEO, 2026-09-28). This REPLACES DEC-0006's 'The measurement, settled' section in full."
+  supersedes:
+    - record: "DEC-0006 / APP-34's 'weekly CWS impressions, 4 weeks after vs. 4 weeks before, must at least double'"
+      why: >
+        The 2x threshold is NOT moved. The WINDOW underneath it was incapable of producing a
+        failure: with first-publish no earlier than 2026-09-23 and the rewrite unpublished, a
+        "4 weeks before" window held about 5 days on which a listing existed at all against 23 days
+        of structural zero. Holding impressions per live day exactly flat — the rewrite doing
+        nothing — the 28-day sum ratio is 28/5 = 5.6x. The criterion returned PASS for every
+        possible outcome including the one where the rewrite makes things worse. Growth flagged this
+        window defect on APP-34 on 2026-09-28 and QA filed it as APP-59; DEC-0014 is the ruling.
+    - record: "OPP-0001 q14(a), 'triple installs within 28 days of the rewrite plus one distribution post'"
+      why: "Discarded outright by the CEO on APP-34, 2026-09-28 — not merely superseded. Impressions rather than installs because the hypothesis is about reach; 2x not 3x; copy-only, with the distribution post deferred so the two interventions cannot confound. CPO still owes the tidy-up amendment on OPP-0001 itself."
+  construction:
+    unit: "MEAN DAILY CWS impressions over LIVE days. Never a window sum."
+    live_day: "A day is live only if the listing was published on it."
+    pre_window: "The N live days immediately preceding the rewrite publish date P."
+    post_window: "The N live days beginning three days after P."
+    N: "Identical on both sides by construction. N <= min(28, P - F - 7), and N must be >= 14 for the read to be decision-grade."
+    exclusions:
+      - "The first 7 live days after first-publish F are excluded from the pre-window as launch novelty."
+      - "The 3 days after P are excluded from the post-window as CWS re-index propagation. This cuts both ways: it guards against a false FAIL before the edit is live in search, and against a false PASS off a short non-durable re-index bump."
+    readability_floor:
+      value: 20
+      applies_to: "pre-window total impressions"
+      evaluated: "AT P, before any post-window data exists"
+      why_that_matters: "The verdict class is fixed before the outcome is observable, which is what stops the third verdict being an escape hatch."
+  verdicts:
+    PASS: "post mean daily impressions >= 2x pre mean daily impressions."
+    FAIL: >
+      post mean < 2x pre mean, with the pre-window over the floor. The "discovery is a copy problem"
+      hypothesis is dead and the constraint is off-store distribution. Recorded as a DEC and NOT
+      iterated on — exactly as DEC-0006 specified.
+    UNREADABLE: >
+      pre-window total below 20, declared at P. The hypothesis is neither confirmed nor killed on
+      this evidence, and a post-only absolute floor pre-registered at P governs instead. If this
+      fires, the honest reading is that CWS impressions at this traffic level cannot test this
+      hypothesis, and the correct move is to stop testing it with this instrument — not to re-run it
+      hoping for a louder signal.
+  on_trip: >
+    On FAIL, Growth records the DEC and stops ALL further listing-copy iteration on this product. No
+    re-draft, no second rewrite. The DEC id is allocated by the allocator per DEC-0015, not chosen by
+    hand — an earlier revision of this record hand-reserved "DEC-0009", which was already taken.
+  frozen_at: >
+    Per DEC-0014's own risk section: once the first post-window data point exists, this construction
+    is frozen — N, F, the floor and the three-day exclusion included. Any later change is a board
+    matter, not a CEO one, and not Growth's.
+  installs: "Secondary read only. Unchanged."
+
 measurement:
   instrument: "Chrome Web Store Developer Dashboard only - impressions and installs. No product telemetry required, which is the reason this is the correct first step."
-  cadence: weekly
-  window: "4 weeks after the change goes live vs. the 4 weeks immediately before"
-  required_input:
-    - id: R1
-      what: "Weekly CWS impressions and installs for the 4 weeks before the change goes live."
-      owner: founder
-      why: >
-        The CWS Developer Dashboard is credentialed; Growth must never hold or request store
-        credentials (AGENTS.md universal rule 4) and the CWS API cannot report impressions. This
-        figure must be captured from the dashboard, NOT estimated. Without it the experiment has no
-        denominator and the kill criterion cannot be evaluated.
-      status: outstanding
-      owner_resolved: >
-        APP-47 (Analyst) owns capturing this. Raised by the CEO on APP-34, 2026-09-28. It must land
-        BEFORE the change publishes; a baseline reconstructed afterwards is not a baseline.
-  baseline_window_defect:
-    severity: "blocks a readable result, not the draft"
-    raised_by: "CEO on APP-34 (2026-09-28), sharpened here by Growth"
-    finding: >
-      The product went live 2026-09-20 (CEO's figure; NOT recorded in product-facts.yaml — see
-      below). As of 2026-09-28 that is 8 days of live data, so a literal "4 weeks immediately
-      before" window is roughly 20 days of pre-launch zero plus 8 days of launch-week traffic.
-      Neither slice of that is a usable denominator, and they fail in OPPOSITE directions:
-    if_the_full_4_weeks_are_averaged: >
-      ~20 days of structural zero deflate the weekly mean, so "double the baseline" becomes trivially
-      easy and the test returns a PASS that means nothing. This is the more dangerous failure,
-      because it confirms the hypothesis without evidence and sends us on to spend on S3.
-    if_only_the_live_weeks_are_used: >
-      CWS gives new items a temporary visibility boost that decays on its own. Measuring against a
-      launch-spike baseline makes "double" artificially hard, and a FAIL would then kill a hypothesis
-      that was never actually tested — the exact outcome the kill criterion is supposed to prevent.
-    growth_recommendation: >
-      Do not start the clock yet. Define the baseline as the last N COMPLETE weeks of post-launch-
-      decay steady state, and do not publish until at least two consecutive such weeks exist. That
-      costs a short delay and buys the only version of this experiment that can be read either way.
-      Growth does not set N — that is Analyst's call on APP-47, from the actual weekly series. If
-      Analyst finds no defensible steady-state window is reachable in reasonable time, then the
-      impressions-doubling test is not runnable on this product and that conclusion belongs to the
-      CEO BEFORE publish, not in a readout four weeks later.
-    launch_date_traceability: >
-      2026-09-20 is the CEO's figure and is load-bearing for the whole window calculation, but
-      product-facts.yaml records only published_version 0.1.0 and last_verified 2026-09-24 — no
-      launch date. CPO/CTO should land the store-verified first-publish date in product-facts.yaml.
-      Growth is not treating an issue-comment date as a product fact.
+  reported_with_the_result:
+    - "N, and the live-day count on each side"
+    - "F, and whether the 2026-09-25 conservative default was used"
+    - "the pre-window total, and the readability determination recorded at P"
+  computed_by: "Analyst, mechanically from the construction above, with no judgement left at the point of reading."
+  first_publish_date_F:
+    value: null
+    bounded_to: "2026-09-23 .. 2026-09-25"
+    default_if_unresolved: "2026-09-25 (conservative — the latest candidate never claims a live day that might not have been live)"
+    correction: >
+      CORRECTED 2026-09-29, and this reverses a claim Growth made on APP-34 on 2026-09-28. Growth
+      cited `appforge-control/config/portfolio.yaml` as a committed config fact recording
+      `first_published: "2026-09-20"` and offered it as a traceability upgrade over the CEO's
+      issue-comment date. That was wrong in the opposite direction: the line cited was the first
+      line of a CTO comment REFUTING that date, the record's value is `first_published: null`, and
+      at the time the file was not even tracked. QA caught this on APP-34 and it is Growth's to fix.
+    evidence:
+      - "json-workbench/logs/chrome-store/2026-09-20-release.log is 5 lines: four DISCOVERING scans and `[ERROR] [BLOCKED] Found 3 secret findings`. No publish event. Re-verified 2026-09-29."
+      - "`git tag --format='%(creatordate:short)'` returns 2026-09-23 for BOTH v0.1.0 and v0.2.0. Re-verified 2026-09-29."
+      - "config/portfolio.yaml now records json-workbench `first_published: null`, reason_code `first_published_null`, with spec_defects.D4 documenting the 2026-09-20 value as unsupported and corrected. APP-41 (done) landed that."
+    still_open: "A store-verified first-publish date has not been recovered from repo evidence. F stays null and the 2026-09-25 default governs unless the dashboard export on APP-54 settles it."
+  publish_date_P:
+    status: "NOT SETTLED — and explicitly not the CEO's to settle. DEC-0014 routes it to the board."
+    arithmetic: "N <= P - F - 7. With the conservative F = 2026-09-25: N = 14 requires P >= 2026-10-16; N = 28 requires P >= 2026-10-30. At P = 2026-09-28 the expression is NEGATIVE — no valid pre-window exists and the before/after read cannot be constructed at all."
+    growth_read: >
+      Publishing immediately does not weaken this experiment, it removes it. Growth's position is
+      that the earliest defensible P is 2026-10-16, and that the wait is close to free: the publish
+      was going to spend that time gated regardless (G7 board approval ungranted, APP-47 baseline
+      blocked on APP-54's CSVs, APP-63's precondition unmet). The bundled-release ruling makes the
+      wait cheaper still — see publish_path.review_clock_is_not_a_cost.
   confound_to_control:
     - >
-      OPP-0001 S3 (a DEV / r/dataengineering distribution post) must NOT run inside the 4-week
-      window, or impressions cannot be attributed to the copy change. Already company policy:
-      DEC-0006 defers S3 until S1 has been measured, on experiment-design grounds. Growth will not
-      publish a launch post before the window closes.
+      OPP-0001 S3 (a DEV / r/dataengineering distribution post) must NOT run inside the post-window,
+      or impressions cannot be attributed to the copy change. Already company policy: DEC-0006
+      defers S3 until S1 has been measured, reaffirmed by the CEO on APP-34 on 2026-09-28. Growth
+      will not publish a launch post before the window closes.
     - >
-      If the title ships as part of a version bump (see publish_path below), the release itself
-      refreshes the "last updated" date, which independently affects ranking. Note it in the
-      readout; do not claim a clean copy-only attribution if a release rode along.
-
-kill_criterion:
-  authority: >
-    DEC-0006 (CEO, 2026-09-28), pre-registered there and restated in APP-34. RECONFIRMED verbatim by
-    the CEO on APP-34 on 2026-09-28: weekly impressions, 4 weeks after vs. 4 weeks before, must at
-    least double; installs are a secondary read only. OPP-0001 q14(a)'s "triple installs in 28 days"
-    is discarded by that ruling, not merely superseded.
-  governing_text: >
-    If weekly CWS impressions do not at least double within 4 weeks of the change going live, the
-    "discovery is a copy problem" hypothesis is dead and the constraint is off-store distribution.
-    Record that as a DEC and stop iterating on listing copy.
-  on_trip: >
-    Growth records the DEC (next free id is DEC-0009, once DEC-0006/0007/0008 merge) and stops all
-    further listing-copy iteration on this product. No re-draft, no second rewrite.
-  provenance_note:
-    issue: >
-      APP-34 asks for this criterion "restated verbatim from OPP-0001". It is not in OPP-0001 in
-      that form, and OPP-0001 has no `recommended_first_step` key either — the content is at
-      `recommended_scope.smallest_validated_first_step`, S1. OPP-0001's own pre-registered
-      falsifier q14(a) is quoted verbatim below and differs on three substantive points.
-    opp_0001_q14a_verbatim: >
-      (a) REACH - if weekly new installs do not at least triple within 28 days of the listing
-      rewrite plus one distribution post, the "we are invisible on the right query" theory is
-      wrong and the problem is demand, not discovery -> archive with a learning note;
-    differences: ["metric: impressions vs. new installs", "threshold: 2x vs. 3x", "treatment: copy-only vs. listing rewrite PLUS one distribution post"]
-    resolution: >
-      CLOSED 2026-09-28 — the CEO discarded q14(a) outright on APP-34. Growth is not reopening it. DEC-0006's "Measurement, corrected"
-      section supersedes q14(a) explicitly and on exactly these three points: impressions rather
-      than installs, because the hypothesis is about reach and installs conflate reach with appeal;
-      doubling rather than tripling; and S3 (the distribution post) deferred so the two
-      interventions cannot confound each other. The governing text above is therefore DEC-0006's,
-      which is what APP-34 restates. The only thing left open is bookkeeping: OPP-0001 q14(a)
-      still carries the superseded text, and CPO should amend it so the opportunity record and the
-      decision record agree. That is a CPO tidy-up, not a blocker on this draft.
+      The bundled patch release refreshes the item's "last updated" date, which independently
+      affects ranking. This is a known, accepted confound of the CEO's 2026-09-29 bundle ruling.
+      Note it in the readout; do not claim a clean copy-only attribution.
+  required_input:
+    - id: R1
+      what: "Daily CWS impressions and installs covering the pre-window, from the Developer Dashboard."
+      owner: "Analyst (APP-47), whose input is QA's CSV export on APP-54"
+      changed_from_draft: >
+        The draft asked for WEEKLY figures for "the 4 weeks before". DEC-0014's construction is
+        per-live-day, so the export must be DAILY and must cover from F forward — weekly buckets
+        cannot be decomposed into live-day means, and cannot be used to determine F.
+      why: >
+        The CWS Developer Dashboard is credentialed; Growth must never hold or request store
+        credentials (AGENTS.md universal rule 4) and the CWS API cannot report impressions.
+      status: outstanding
+      caveat_from_qa: >
+        The dashboard may return zeros rather than absent rows for pre-launch days, in which case a
+        live day with no impression is indistinguishable from a day with no listing and F cannot be
+        read from impressions at all. DEC-0014's 2026-09-25 default handles that case.
+  baseline_window_defect:
+    status: RESOLVED
+    resolved_by: "DEC-0014"
+    history: >
+      Growth raised this on APP-34 on 2026-09-28 — that both ways of slicing a 4-weeks-before window
+      were unreadable and failed in opposite directions, that averaging the full 4 weeks gives a
+      meaningless PASS, and that using only the live weeks measures against the launch novelty
+      boost. QA filed it as APP-59. DEC-0014 took neither of the two slicings: it rebuilt the
+      windows to be equal in LIVE days and added the readability floor, which is the piece nobody
+      had asked for and the one that makes "too noisy to call" a statement made in advance rather
+      than a conclusion reached afterwards. Kept here as history because the record should show the
+      defect was found before publish, not after a readout.
 
 # ---------------------------------------------------------------------------
-# HOW THIS ACTUALLY SHIPS (findings that change the plan's shape)
+# HOW THIS ACTUALLY SHIPS
 # ---------------------------------------------------------------------------
 publish_path:
+  ruling: "Both fields ship together in ONE PATCH RELEASE. CEO, 2026-09-29, APP-34 card e173d7ea option `bundle`."
+  ruling_overrides: >
+    APP-34's original "no package re-review" scoping, deliberately and on the record. The CEO's
+    stated reason is measurement, not ambition: EXP-0001 exists to read a before/after window, and a
+    treatment split across two start dates produces a window nobody can interpret. The title is also
+    the field OPP-0001 named as the binding gap, so a short-description-only ship would test the
+    weaker half of the hypothesis.
   short_description:
     field: "chrome-store/store.config.json -> shortDescription"
-    mechanism: "Listing-only edit. release-platform consumes shortDescription from store.config.json; PR CI enforces the 132-char limit."
+    mechanism: "Genuinely listing-only. release-platform validates it (required, max 132) and it reaches the published payload."
     needs_release: false
   title:
-    field: "apps/extension/manifest.json -> name (currently 'JSON Workbench'), mirrored in chrome-store/store.config.json -> name"
+    field: "apps/extension/manifest.json -> name. chrome-store/store.config.json -> name must be set to the SAME string."
     mechanism: >
-      NOT a listing-only edit. release-platform's documented store.config.json keys are
-      shortDescription, description, screenshots, promoVideo, promotionalImages, privacyPolicyUrl,
-      supportUrl, websiteUrl and publisherId - `name` is not among them. The displayed CWS item
-      name comes from the packaged manifest, and the 45-character ceiling OPP-0001 cites is the
-      manifest `name` limit. Changing the title therefore requires a version bump, a rebuilt
-      package, an upload and a full store review.
+      NOT a listing-only edit. The Chrome Web Store takes the item title from the PUBLISHED
+      PACKAGE's manifest `name`; the Store listing tab in the Developer Dashboard has no title field
+      at all. Changing the title therefore requires a version bump, a rebuilt package, an upload and
+      a full store review.
     needs_release: true
-    answers_dec_0006_risk: >
-      DEC-0006's risk section leaves this open — "a CWS metadata change may still trigger a listing
-      review; CTO/Release must confirm the review path before publish rather than assuming the 'no
-      re-review' claim in the record." This is the answer for the title specifically: it is not
-      metadata at all from the store's point of view, it is the package, so a re-review is certain
-      rather than possible. The short description is the genuinely review-free half.
-    consequence: >
-      APP-34's "no package re-review" constraint cannot hold for the title. Either (i) ship S1/S2
-      now as a listing-only edit and carry T1 on the next scheduled release, or (ii) hold both and
-      ship them together in one patch release so the 4-week window has a single clean start date.
-      Growth recommends (ii): splitting the treatment across two dates makes the impressions
-      before/after comparison unreadable, which is the one thing this experiment exists to measure.
+    correction: >
+      CORRECTED 2026-09-29, and this is a correction to Growth's own reasoning on APP-34 on
+      2026-09-28. Growth argued the title could not ship through store.config.json because the file
+      has no `name` key. The KEY IS THERE — it is the first top-level key, value "JSON Workbench" —
+      and release-platform's listing.mjs read it, validated nothing about it, and dropped it before
+      the published payload. So the conclusion was right and the reason was wrong, and the wrong
+      reason understated the danger: editing the title in store.config.json was not an
+      impossible-so-nobody-would-try edit, it was a NO-OP THAT REPORTED SUCCESS. QA established this
+      on APP-69 and CTO confirmed it from the pipeline.
+    why_the_correction_matters_at_the_gate: >
+      The G7 listing diff is rendered from the source file, not from the published payload. Before
+      APP-69's fix, that diff would have shown the board a new title that the publish silently
+      discarded — the approver seeing the diff was not a control. CTO's APP-69 branch
+      (`fix/APP-69-listing-name` in release-platform) turns that mismatch into a hard CI failure and
+      carries `name` into the checklist, so the board sees the real title. APP-69 is unmerged: no
+      agent has write access to release-platform, and APP-92 is with the CEO on the delivery path.
+  review_clock_is_not_a_cost_here:
+    finding: >
+      CTO flagged the CWS re-review turnaround as a timing risk for EXP-0001, on the reasoning that
+      a title change has variable, uncontrolled latency while a short-description change does not.
+      Under DEC-0014 that risk inverts. The binding constraint on P is not "ship as soon as
+      possible", it is P >= 2026-10-16 for a decision-grade N of 14. The review clock runs INSIDE a
+      wait the measurement construction already requires, so bundling costs schedule only if review
+      pushes the effective live date past a board-set P — not merely because review takes time.
+    what_it_does_change: "The experiment's start date is whenever review clears, so P is observed rather than chosen. Analyst must anchor the windows on the actual live date, not on the submit date or the approval date."
+  builder_scope:
+    files: ["apps/extension/manifest.json (name + version)", "chrome-store/store.config.json (name + shortDescription)"]
+    version: "0.2.0 -> 0.2.1 (patch)"
+    not_in_scope: ["the long description", "screenshots", "promo images", "permissions", "any product code"]
+    verification_caveat: >
+      The CI check that would catch a manifest/store.config `name` mismatch is on the unmerged
+      APP-69 branch. Until it merges, the two `name` values must be verified equal BY HAND in
+      review. This is exactly the failure mode APP-69 exists to prevent, and it is live on this very
+      PR.
   dispatch_reality:
     workflow: ".github/workflows/listing.yml in json-workbench"
-    inputs_available: ["dry_run", "targets"]
     note: >
-      The workflow takes no approval_id input (that input belongs to the release workflow), and the
-      CWS API cannot change a listing at all. For Chrome the listing workflow only opens a
+      The CWS API cannot change a listing at all. For Chrome the listing workflow only opens a
       `store-listing` issue containing the files, the dashboard link and the exact steps including
       "Submit for review". The field edit and the submit are a manual founder action in the
-      dashboard. The board approval gate still applies, and neither Growth nor the CEO dispatches
-      it - CTO/Release does.
+      dashboard. Neither Growth nor the CEO dispatches it - CTO/Release does.
 
 gates:
-  - "CEO selects the title/short-description pairing. Growth drafts; Growth does not choose and does not publish. STILL OPEN as of 2026-09-28."
-  - >
-    CORRECTED 2026-09-28 by the CEO on APP-34. An earlier revision of this record read DEC-0006 as
-    satisfying APP-34's board-approval gate for these two fields. That reading is withdrawn. The CEO
-    ruled explicitly that publishing is not the CEO's to approve: §10.3 G7 names "listing" in the
-    board-approval diff. What DEC-0006 approves is the DRAFTING and the PR — LOW risk, ~0.1
-    builder-weeks, under DEC-0003 — and nothing beyond that.
-  - >
-    Publish path, as ruled: Growth's copy -> Builder applies it -> CTO raises a G7 BOARD APPROVAL
-    carrying the listing diff -> publish against a recorded approval id. The CEO's instruction is that
-    nobody shortcuts G7 on the grounds that the change "is only text". Growth agrees and will not
-    treat a copy-only diff as exempt.
-  - >
-    CTO/Release dispatches `.github/workflows/listing.yml`; the founder completes the dashboard edit
-    and Submit for review. Never Growth, never the CEO directly.
+  - status: SETTLED
+    gate: "CEO selects the pairing and the publish path."
+    outcome: "T1 + S1; bundle both fields in one patch release. 2026-09-29, card e173d7ea."
+  - status: OPEN
+    gate: "G7 BOARD APPROVAL, carrying the listing diff, raised by CTO. §10.3's G7 names 'listing' explicitly."
+    note: >
+      The CEO ruled that publishing is not the CEO's to approve, and that nobody shortcuts G7 on the
+      grounds that the change "is only text". An earlier revision of this record read DEC-0006 as
+      satisfying this gate; that reading is withdrawn. DEC-0006 approves the DRAFTING and the PR,
+      nothing beyond. The CEO also declined the `cto_verifies` option as a blocking hop: CTO
+      confirms the publish path AS PART OF the G7 review, not before it.
+    preconditions_carried_into_the_approval_payload:
+      - "APP-63 — the G7 approval payload must name DEC-0014's readability determination and the board-set P as satisfied, or record an explicit waiver. APP-63 is blocked by APP-47 and APP-69."
+      - "APP-47 — Analyst returns a defensible pre-window (N, F, live-day counts, pre-window total). Blocked by APP-54."
+      - "APP-69 — the store.config/manifest `name` consistency check, so the G7 diff cannot show the board a title the publish would drop."
+  - status: OPEN
+    gate: "The publish date P itself. DEC-0014 routes it to the board, not the CEO."
+  - status: STANDING
+    gate: "CTO/Release dispatches `.github/workflows/listing.yml`; the founder completes the dashboard edit and Submit for review. Never Growth, never the CEO directly."
 
 next_steps:
-  - "CEO: pick T1+S1, T1+S2 or T2+S1. STILL OPEN — the 2026-09-28 reply settled measurement, sequencing and the approval path, but did not name a pairing."
-  - "CEO: rule on publish_path. STILL OPEN. The ruled route (Builder edits chrome-store/store.config.json) works for the short description but CANNOT carry the title, which lives in the packaged manifest."
-  - "Analyst (APP-47): supply R1 AND rule on `measurement.baseline_window_defect` — whether a readable pre-period is reachable at all — before anything publishes."
-  - "Then: a one-file PR in json-workbench (store.config.json shortDescription, plus manifest+store.config name if the title is approved), owned by Builder, reviewed by CTO."
-  - "CPO: amend OPP-0001 q14(a) to match DEC-0006 so the two records stop disagreeing."
-  - "4 weeks after go-live: joint readout with Analyst against the kill criterion."
+  - "Builder: apply T1 + S1 across manifest.json and store.config.json, bump 0.2.0 -> 0.2.1, open the PR. Reviewed by CTO. Not blocked — the hold belongs at the publish, not here."
+  - "CTO (APP-63): carry DEC-0014's readability determination and the board-set P into the G7 approval payload."
+  - "CTO (APP-69): land the name-consistency check; APP-92 owns the release-platform write path."
+  - "Analyst (APP-47): DAILY impressions/installs from F forward, not weekly. Compute N, F and the pre-window total; record the readability determination AT P."
+  - "Board: set P. The measurement consequence of each option is priced in DEC-0014."
+  - "CPO: amend OPP-0001 q14(a) to match DEC-0014 so the opportunity record and the decision record stop disagreeing."
+  - "After the post-window closes: joint readout with Analyst against the three verdicts. Growth records the DEC on FAIL and stops iterating."
 
 related_decisions:
-  - "DEC-0006 - the authority this work proceeds under, and the source of the pre-registered impressions criterion. Pending merge on branch ceo/DEC-0006-0008-opp-0001-g2-adjudication as of 2026-09-28."
+  - "DEC-0014 - the governing falsifier. Replaces DEC-0006's measurement section."
+  - "DEC-0006 - approves the draft and the PR; its measurement section is superseded and its 2026-09-20 first-publish date is refuted."
+  - "DEC-0015 - decision ids are allocated by the allocator, not by hand."
   - "DEC-0003 - JSON Workbench runs the first end-to-end factory loop."
   - "DEC-0004 - $100/month cap. This draft is NORMAL tier, 150 cents."

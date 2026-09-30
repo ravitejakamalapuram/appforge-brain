@@ -2,11 +2,40 @@ name: brain-pr-checks
 
 # Governance for appforge-brain, per appforge-ai-master-plan.md §9.1:
 #   - PERMANENT (company/, strategy/, policies/) changes need founder approval: a PR touching
-#     those paths fails unless it carries the `board-approved` label (CODEOWNERS-like check).
+#     those paths fails this check run unless it carries the `board-approved` label.
 #   - LEARNED (decisions/, postmortems/) is append-only: editing an existing file is rejected,
 #     except the review_outcome/status/superseded_by fields (see scripts/validate-decisions.mjs).
 #   - The DEC/PM schema validator and the INDEX generator both run and must pass; a stale
 #     INDEX.md (committed content != freshly generated content) fails the build.
+#
+# >>> WHAT THESE CHECKS ARE, EXACTLY - ADVISORY, NOT A MERGE BLOCK (APP-134, 2026-09-29) <<<
+#
+# Every job in this file produces a red X on the PR. None of them refuses the merge. Measured
+# read-only against the GitHub API on 2026-09-29:
+#
+#   GET /repos/ravitejakamalapuram/appforge-brain/branches/main
+#     -> protected: false
+#     -> protection.enabled: false
+#     -> protection.required_status_checks.enforcement_level: "off", contexts: [], checks: []
+#
+# That last line is the operative one: no job here is a required status check, so a merge with
+# every check red still returns HTTP 200. Rulesets are not a hidden second mechanism on THIS repo
+# either - GET /repos/.../rulesets and /rules/branches/main both return 403 "Upgrade to GitHub Pro
+# or make this repository public" here, while the SAME endpoints with the SAME token return 200 []
+# on the account's public repo `appforge-kit`. Rulesets are free on public repos and paid on
+# private ones (APP-136), and this repo is private - so branch protection is unavailable here
+# rather than merely unconfigured.
+#
+# This header used to call the label gate a "CODEOWNERS-like check". That was wrong, and correcting
+# it is why this block exists: real CODEOWNERS plus required reviews refuses the merge server-side,
+# and this does not. Per `DEC-0016` and `appforge-control/docs/containment-model.md`, the gate is
+# the same category of thing as the `TOOLS.md` deny lists - COOPERATIVE. It does work: it has
+# never been bypassed, because every agent stops at the red X. But it works through agent
+# discipline plus a loud signal, not through the server. Those have different failure modes.
+#
+# So: do not describe this gate as enforced, and do not build anything that assumes a red X here
+# stops a merge. Turning branch protection on for this repo is a founder call about money or repo
+# visibility, not an engineering task - tracked on APP-123. Do not "fix" it by changing visibility.
 
 on:
   pull_request:
@@ -46,7 +75,11 @@ jobs:
               core.setFailed(
                 'This PR touches company/, strategy/ or policies/ (PERMANENT knowledge per §9.1) ' +
                 'but does not carry the "board-approved" label. Get founder approval and add the ' +
-                'label, or move the change out of those folders.'
+                'label, or move the change out of those folders.\n\n' +
+                'Note, honestly: this failure does NOT block the merge. `main` has no branch ' +
+                'protection and this is not a required status check (APP-134), so the merge API ' +
+                'will accept your PR with this X showing. Not merging anyway is a company rule, ' +
+                'not a server rule - it is on you. Stop here and get the label.'
               );
             } else {
               core.info('board-approved label present — PERMANENT path change allowed.');

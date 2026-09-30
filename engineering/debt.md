@@ -19,6 +19,8 @@ describes is still true and whoever meets it next needs the reasoning, not just 
 | DEBT-0003 | Quota-retry watchdog is unmonitored; its failure leaves an agent paused | APP-45 | Medium | Open |
 | DEBT-0004 | Credentialed re-fetch of the active tab's URL was undisclosed | APP-81 | Low | Resolved |
 | DEBT-0005 | Run issue-binding is read only from the run record, so an unbound run can hold a checkout it cannot write to | APP-184 | High | Resolved via workaround |
+| DEBT-0006 | The production release path is defined by mutable refs on a repo with no rulesets and no environments | APP-233 | Medium | Open |
+| DEBT-0007 | A bypass of the advisory `board-approved` gate leaves no signal | APP-233 | Low | Open |
 
 ---
 
@@ -537,3 +539,167 @@ CLI upgrade until upstream changes, which is why this entry stays in the registe
 *Resolved* only when a Paperclip release makes an unbound run either bound-on-checkout or able
 to write to the issue it holds — a trigger unchanged by the 2026-09-29 ruling that moved the
 wait onto [APP-79](/APP/issues/APP-79).
+
+---
+
+## DEBT-0006 — The production release path is defined by mutable refs on a repo with no rulesets and no environments
+
+**Raised by** [APP-233](/APP/issues/APP-233), 2026-09-30. **Severity** Medium.
+**Status** Open — the fix is $0 but needs `administration: write`, which no agent holds.
+
+### What
+
+Every shipping product consumes `release-platform`'s reusable workflows by **moving major tag**.
+Twelve call sites across five repos, all pinned `@v2`, verified 2026-09-30 by reading each
+workflow blob:
+
+| Consumer | Call sites |
+|---|---|
+| `json-workbench` | `app-ci.yml@v2`, `listing.yml@v2`, `release.yml@v2` |
+| `TelePort` | `app-ci.yml@v2`, `promote.yml@v2`, `release.yml@v2` |
+| `echokit` | `app-ci.yml@v2`, `release.yml@v2` |
+| `GitaVerses` | `app-ci.yml@v2`, `release.yml@v2` |
+| `TeluguPanchangam` | `app-ci.yml@v2`, `release.yml@v2` |
+
+`v2` currently resolves to `3b1cd6cd` (= `v2.2.0`) and is **force-moved by CI**:
+`.github/workflows/move-major-tag.yml` runs on `push: tags: ['v*.*.*']` and ends in
+`git tag -f "$major" && git push -f origin "refs/tags/$major"` with `contents: write`.
+That is intended behaviour, not a defect.
+
+What is missing is any server-side check on the refs that decide what runs:
+
+- `GET /repos/ravitejakamalapuram/release-platform/rulesets` → `200 []`. **No branch rulesets and
+  no tag rulesets.** So neither `main` nor `v2` nor any `vX.Y.Z` point tag is protected against
+  force-update or deletion.
+- `GET /repos/.../branches/main` → `"protected": false`.
+- `GET /repos/.../environments` → `"total_count": 0`. The `release` and `promote` workflows carry
+  **no environment protection rule**, so there is no required-reviewer step in front of a
+  production release either.
+
+The repo is public, so rulesets are available on the free plan — this costs nothing and involves no
+plan change. Six of the seven public repos are equally unprotected (`appforge-kit`,
+`release-platform`, `echokit`, `TelePort`, `GitaVerses`, `TeluguPanchangam` all report
+`"protected": false`); `json-workbench` is the only repo in the fleet with an active ruleset
+(`protected-main`: `deletion` + `non_fast_forward`). The five private repos cannot have rulesets at
+all — `GET /rulesets` returns `403 "Upgrade to GitHub Pro or make this repository public to enable
+this feature."` That asymmetry looks like an accident of history rather than a decision.
+
+### Why it matters — and why `main` is the wrong thing to protect
+
+This entry exists mainly to correct an intuition that is easy to reach and wrong. The obvious
+reading of "the release repo's `main` is unprotected" is that `main` should be protected, by analogy
+with `json-workbench`'s `protected-main`. **Nothing consumes `main`.** All twelve call sites resolve
+a tag. A branch ruleset on `refs/heads/main` would leave the entire release path exactly as mutable
+as it is today, while looking like the problem had been addressed — which is worse than leaving it
+open and knowing it.
+
+The ref that decides what runs in every product's production release is `refs/tags/v2`, and behind
+it the `vX.Y.Z` point tags it is derived from. A force-push to either changes what every consumer
+executes on its next release, with no PR, no review and no diff anyone is prompted to read.
+
+### What would resolve it
+
+Tag rulesets on `release-platform`, not a branch ruleset. The zero-risk subset that needs no bypass
+list at all is the point releases, because `move-major-tag` never touches them:
+
+- `refs/tags/v*.*.*` → `deletion` + `non_fast_forward`. This makes shipped point releases
+  immutable. `v2.2.0` can then never be quietly re-pointed; changing what `v2` runs requires
+  pushing a *new* point tag, which appears in the tag list.
+- The moving alias (`refs/tags/v2`, matched by `refs/tags/v[0-9]` and deliberately **not** by
+  `refs/tags/v*.*.*`) is the harder case: `non_fast_forward` there would break `move-major-tag`
+  unless the ruleset carries a `bypass_actors` entry for the GitHub Actions integration. Protecting
+  it against `deletion` only is safe without any bypass.
+- `refs/heads/main` → `deletion` + `non_fast_forward`, matching `json-workbench`, is worth having
+  for consistency but should not be mistaken for the release-path control.
+
+All of this needs `administration: write`. The `appforge-agents` App does not hold it, and widening
+it is forbidden ([APP-138](/APP/issues/APP-138) ruling: the refusals are among the few demonstrated
+server-side controls this company has, and are not to be routed around). So this is founder-hands-only
+by construction, and it is recorded rather than requested — see the *Not a request* note below.
+
+### Residual risk, and what would raise the severity
+
+Severity is Medium rather than High because no agent credential observed today can write to this
+repo: this run's App installation token is scoped to eleven repos
+(`appforge-kit`, `appforge-control`, `appforge-brain`, `echokit`, `json-workbench`, `TelePort`,
+`StellarTab`, `GitaVerses`, `TeluguPanchangam`, `cors-enabler`, `session-transfer`) and
+**`release-platform` is not among them**. The exposure is to the founder's own hands and to anything
+holding the founder's personal credential — not to the agent fleet. Whether the App *installation*
+includes `release-platform` is not determinable from an agent run; installation repo selection is
+founder-only.
+
+This becomes High the moment `release-platform` enters any agent's `APPFORGE_AGENT_REPOS` or the App
+installation, because then a cooperative-only deny list would be the sole thing standing between an
+agent and the production release path of five products. If that change is ever proposed, this entry
+is the reason to do the tag rulesets first.
+
+### Not a request
+
+[APP-233](/APP/issues/APP-233) parked this deliberately and carried no interaction card. The founder
+ruled on 2026-09-30 ([APP-135](/APP/issues/APP-135) / [APP-216](/APP/issues/APP-216)) that the
+`appforge-brain` `board-approved` gate stays **advisory at $0** — no GitHub Pro, no server-side gate,
+cooperative controls only. That ruling was about the governance gate on the private repos; it did not
+name the public repos and did not name release safety. Nothing here reads a decision into that
+silence: the register is the right home for a gap that is understood, costed at $0, and needs an
+authority the CTO does not hold. It stays Open until either the rulesets exist or the founder rules
+that the 2026-09-30 stance covers this too, in which case it closes as a decision rather than a fix.
+
+---
+
+## DEBT-0007 — A bypass of the advisory `board-approved` gate leaves no signal
+
+**Raised by** [APP-233](/APP/issues/APP-233), 2026-09-30. **Severity** Low.
+**Status** Open — needs the `workflows` permission, which no agent holds.
+
+### What
+
+`appforge-brain`'s `.github/workflows/pr-checks.yml` job
+`governance-permanent-paths` fails a pull request that touches `company/`, `strategy/` or
+`policies/` unless the PR carries the `board-approved` label. The founder ruled on 2026-09-30 that
+this gate is **advisory by design** — it is not backed by branch protection and cannot block a
+merge. That is the chosen design, not a limitation, and is not to be re-filed as a defect.
+
+The gap is narrower and is about observability, not enforcement: because the check runs only
+`on: pull_request`, a PERMANENT-path change that reaches `main` **without** the label produces no
+signal anywhere. The advisory gate's entire value is that someone notices; today a bypass is
+indistinguishable from compliance after the fact, without going and diffing `main` by hand.
+
+### Why it matters
+
+An advisory control is a reasonable choice, but it is only coherent if the advice is visible when
+ignored. "Advisory" and "silent" are different properties, and the 2026-09-30 ruling chose the first.
+This entry exists so that the second is not read as having been chosen alongside it.
+
+### What would resolve it
+
+A `push`-triggered re-check on `main` that re-runs the same PERMANENT-path diff against the merged
+commit and raises an alarm when such a commit landed without the label. It cannot block a merge, so
+it does not contradict "advisory" — it makes a bypass visible rather than silent. Whether that counts
+as a *cooperative control* (which `DEC-0016` statement (2) describes, and which the 2026-09-30 ruling
+is an argument for) or as a *server-side gate* (which the ruling closed) is the founder's reading to
+make, not the CTO's.
+
+The file lives under `.github/workflows/`, which the `appforge-agents` App is refused server-side for
+lack of the `workflows` permission, so it is founder-hands-only. A ready-to-commit draft is attached
+to [APP-233](/APP/issues/APP-233); per that issue it should ride in the **same** founder commit as
+[APP-213](/APP/issues/APP-213) and [APP-138](/APP/issues/APP-138) rather than becoming a third ask.
+
+### A citation correction worth carrying
+
+The 2026-09-30 position is widely cited as "cooperative controls only, per `DEC-0016`". Two things
+about that citation, verified 2026-09-30:
+
+1. **`DEC-0016` is not on `origin/main`.** It exists only on four unmerged branches
+   (`app-136-ci-advisory`, `ceo/APP-78-containment-model-correction`,
+   `cto/APP-109-dec-0016-containment-model`, `cto/APP-126-dec-0012-and-uid-containment`), as
+   `decisions/DEC-0016-os-uid-is-the-only-containment-boundary.md`. `main` carries `DEC-0001`–`0005`,
+   `0006`–`0011`, `0013`–`0015`, `0018`, `0020`; `0012`, `0016`, `0017` and `0019` are absent. A
+   reader of `main` cannot check the citation. Same failure mode as the `DEC-0012` case tracked on APP-88 —
+   cite the **APP-135 / APP-216 ruling**, not the DEC number.
+2. **Its subject is the containment boundary, not a controls policy.** `DEC-0016` is the APP-78
+   record that the OS uid is the only containment boundary. Its statement (2) — "every agent-facing
+   deny list is cooperative" — is an *observation that our existing deny lists are cooperative and
+   must not be described as a sandbox*. It is not a rule that the company may only ever hold
+   cooperative controls, and it should not be stretched into one to refuse a server-side control on
+   some unrelated repo. The authority for the 2026-09-30 refusal is the founder's ruling; `DEC-0016`
+   is context for it.

@@ -129,6 +129,17 @@ review_outcome: >
   this record stands: P, F, N = min(28, P - F - 7), the 20-impression floor value, both exclusions,
   the 2x threshold, the three verdicts and the freeze at first post-window data. This record remains
   active; read it together with DEC-0018.
+
+  P IS SETTLED — by the board, exactly as this record routed it, and not by a later DEC. Board
+  approval 45846cd6 ("json-workbench listing publish date P: pick a floor"), decided by
+  `local-board` at 2026-09-29T09:06:46Z on APP-175, approved option (i-b): a publish date FLOOR of
+  P >= 2026-10-26. The board's stated reason was that avoiding a confound between the listing change
+  and G9's day-30 PMF checkpoint is worth the extra ten days over the bare-minimum decision-grade
+  option (P >= 2026-10-16, N = 14). At that floor, with this record's conservative F = 2026-09-25,
+  N = min(28, P - F - 7) = 24 — before DEC-0018's reporting-lag adjustment
+  N = min(28, P - F - 7 - L), which shortens it by L. This closes the one question this record
+  declared it would not settle; nothing in the construction changes because of it. Pointer recorded
+  by CTO on APP-192.
 tags: [json-workbench, measurement, falsifiability, pre-registration, kill-criteria, g9, opp-0001, cws]
 summary: "DEC-0006's four-weeks-before/after impressions criterion could not fail — the pre-window was ~80% pre-existence, returning PASS at 5.6x with zero effect — so it is rebuilt on equal-length live-day windows anchored at the publish date, with a 20-impression readability floor declared at publish time and a third `unreadable` verdict; the 2x threshold does not move, and the publish date the construction now constrains goes to the board."
 ---

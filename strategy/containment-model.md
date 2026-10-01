@@ -30,6 +30,10 @@ This is not a defect in Paperclip. It is what `local_trusted` means, and we chos
   evaluated *after* credential verification, so an actor presenting no credential is never
   measured against any of them. They are real features for credentialed actors; they are not
   containment.
+- **Every CI gate is advisory too.** No repo in this company requires a status check, a review,
+  or even a pull request to merge into its default branch (verified 2026-09-29 across all 11 repos
+  agents hold tokens for). A failing gate is a visible red X, not a block, so the same
+  "cooperative, not enforced" verdict that applies to the deny lists applies to CI.
 - **The run-attribution audit trail is advisory.** An unattributed write is possible, so the trail
   cannot be relied on to name every actor. We gave this up knowingly; it is an accepted cost of
   the position, not an oversight.

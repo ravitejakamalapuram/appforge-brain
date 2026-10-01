@@ -7,6 +7,8 @@
   "scripts": {
     "generate-index": "node scripts/generate-index.mjs",
     "validate:schema": "node scripts/validate-decisions.mjs schema",
+    "validate:duplicate-ids": "node scripts/validate-decisions.mjs duplicate-ids",
+    "new-decision": "node scripts/new-decision.mjs",
     "validate:append-only": "node scripts/validate-decisions.mjs append-only",
     "prune:active": "node scripts/prune-active.mjs list",
     "test": "node --test scripts/tests/*.test.mjs"

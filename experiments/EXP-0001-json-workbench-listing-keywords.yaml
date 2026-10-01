@@ -152,7 +152,11 @@ claim_traceability:
 # MEASUREMENT + PRE-REGISTERED KILL CRITERION
 # ---------------------------------------------------------------------------
 kill_criterion:
-  authority: "DEC-0014 (CEO, 2026-09-28). This REPLACES DEC-0006's 'The measurement, settled' section in full."
+  authority: >
+    DEC-0014 (CEO, 2026-09-28). This REPLACES DEC-0006's "The measurement, settled" section in full.
+    AMENDED IN PART by DEC-0018 (CEO, 2026-09-29, APP-185), which moves the clock on the readability
+    floor and adds a mandatory pre-publish archive. Read the two together; every number DEC-0014
+    pre-registered is unchanged.
   supersedes:
     - record: "DEC-0006 / APP-34's 'weekly CWS impressions, 4 weeks after vs. 4 weeks before, must at least double'"
       why: >
@@ -177,8 +181,47 @@ kill_criterion:
     readability_floor:
       value: 20
       applies_to: "pre-window total impressions"
-      evaluated: "AT P, before any post-window data exists"
-      why_that_matters: "The verdict class is fixed before the outcome is observable, which is what stops the third verdict being an escape hatch."
+      evaluated: >
+        AMENDED by DEC-0018. DEC-0014 said "AT P, before any post-window data exists", which is not
+        executable: the pre-window ends at P - 1 and the dashboard does not report that day until
+        T = P - 1 + L, so for any reporting lag L >= 1 an evaluation at P silently covers only
+        N - L of the N days. The floor is instead determined from the FIRST export — smallest
+        qualifying as_of, so there is nothing to choose between — whose as_of >= P - 1, provided all
+        three of: as_of <= P + 2; the export carries complete daily coverage of [P - N, P - 1]; and
+        ONLY rows dated <= P - 1 enter the arithmetic, so the P..P+2 propagation days cannot leak in
+        even when present. The determination must be RECORDED — committed or posted, timestamped —
+        before any export with as_of >= P + 3 is taken.
+      why_that_matters: >
+        The verdict class is fixed before the outcome is observable, which is what stops the third
+        verdict being an escape hatch. Observability by the evaluator is what carries that guarantee,
+        not the calendar date: P - 1 + L < P + 3 + L identically in L, so the recording interval is
+        never empty and never contains a post-window observation, for every lag and without knowing
+        the lag in advance.
+      fallback_if_history_does_not_survive_the_edit: >
+        Pre-registered by DEC-0018, NOT selected later. Governs if and only if no export satisfying
+        the clause above exists — the daily series did not survive the listing edit, or its coverage
+        of [P - N, P - 1] is incomplete, or no capture landed with as_of <= P + 2. Then the mandatory
+        pre-publish archive governs: the pre-window ends at P - 1 - L and N = min(28, P - F - 7 - L).
+        PRECEDENCE IS STRICT — where both a valid primary-clock export and the archive exist, the
+        primary clock governs, with no exception available to the reader. The governing branch and the
+        observable fact that triggered it are recorded BEFORE any post-window datum is read.
+      contaminated_determination: >
+        A floor determined from an export with as_of >= P + 3, or recorded after such an export was
+        taken, returns UNREADABLE-BY-PROCEDURE. This is NOT the UNREADABLE verdict below and does NOT
+        trigger the post-only absolute floor. It states that the pre-registered procedure was not
+        followed, and it goes to the board rather than being resolved by the Analyst.
+    mandatory_pre_publish_archive:
+      ruling: "DEC-0018 (CEO, 2026-09-29, APP-185). Unconditional — it gates the publish."
+      when: "Between P - 1 and the submission of the listing edit at P. Its as_of will be P - 1 - L."
+      what: >
+        The full daily impressions series, exported and archived. This is NOT the floor determination.
+      why: >
+        Growth's retention question on APP-54 — does the daily series still return dates preceding the
+        most recent listing update? — is still unanswered. If the answer is no, the edit at P destroys
+        the pre-window ITSELF, which is the denominator of the 2x ratio and not merely the floor.
+        DEC-0014 did not cover this because it assumed the capture happened at P. Making the archive
+        conditional on the answer would mean learning the answer at the moment it is too late to act.
+      gate: "If this archive does not exist, the rewrite does not publish."
   verdicts:
     PASS: "post mean daily impressions >= 2x pre mean daily impressions."
     FAIL: >
@@ -186,7 +229,8 @@ kill_criterion:
       hypothesis is dead and the constraint is off-store distribution. Recorded as a DEC and NOT
       iterated on — exactly as DEC-0006 specified.
     UNREADABLE: >
-      pre-window total below 20, declared at P. The hypothesis is neither confirmed nor killed on
+      pre-window total below 20, declared on the governing determination per DEC-0018 (DEC-0014 said
+      "declared at P"; see readability_floor.evaluated). The hypothesis is neither confirmed nor killed on
       this evidence, and a post-only absolute floor pre-registered at P governs instead. If this
       fires, the honest reading is that CWS impressions at this traffic level cannot test this
       hypothesis, and the correct move is to stop testing it with this instrument — not to re-run it
@@ -198,7 +242,8 @@ kill_criterion:
   frozen_at: >
     Per DEC-0014's own risk section: once the first post-window data point exists, this construction
     is frozen — N, F, the floor and the three-day exclusion included. Any later change is a board
-    matter, not a CEO one, and not Growth's.
+    matter, not a CEO one, and not Growth's. DEC-0018 is permitted on the same footing DEC-0014 was:
+    APP-54 stands at 0 of 3 CSVs, so no post-window datum — no datum of any kind — exists yet.
   installs: "Secondary read only. Unchanged."
 
 measurement:
@@ -206,7 +251,10 @@ measurement:
   reported_with_the_result:
     - "N, and the live-day count on each side"
     - "F, and whether the 2026-09-25 conservative default was used"
-    - "the pre-window total, and the readability determination recorded at P"
+    - "the pre-window total, and the readability determination"
+    - "which clock governed the determination (DEC-0018 primary or fallback), and the observable fact that decided it"
+    - "the governing export's as_of and exported_at, and the derived lag L"
+    - "per-day coverage of the pre-window — which days are present, which missing, which zero"
   computed_by: "Analyst, mechanically from the construction above, with no judgement left at the point of reading."
   first_publish_date_F:
     value: null

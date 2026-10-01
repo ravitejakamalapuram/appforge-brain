@@ -62,7 +62,8 @@ risk: >
 owner: founder
 date: "2026-10-01"
 review_date: "2026-12-30"
-status: active
+status: superseded
+superseded_by: DEC-0022
 tags: [governance, permissions, github, agents, routing, appforge-control]
 summary: "appforge-control stays out of Builder's per-run token scope (founder, APP-251); control-repo work is routed to CTO, and a mis-assigned Builder hands back at turn one via scripts/repo-scope-check.sh. Hygiene, not containment (DEC-0016); reversible in one adapter-config field."
 ---
